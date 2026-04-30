@@ -5,9 +5,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 
-// This will temporarily act as our database until we plug in PostgreSQL
+// --- IN-MEMORY DATABASE ---
 let latestSensorData = {
     device_id: "BQI-ESP32-001",
     temperature: 28.0,
@@ -15,16 +15,30 @@ let latestSensorData = {
     voc: 1.0,
     co2: 400.0,
     oxygen: 21.0,
-    bqi: 100, // Calculated Breath Quality Index
+    bqi: 95, 
     timestamp: new Date().toISOString()
 };
+
+// Array to hold the last 24 hours of data
+let historyData = [];
+
+// GENERATE FAKE 24-HOUR HISTORY ON STARTUP
+function generateInitialHistory() {
+    let now = new Date();
+    // Create 24 data points (one for each of the last 24 hours)
+    for (let i = 24; i > 0; i--) {
+        let pastTime = new Date(now.getTime() - (i * 60 * 60 * 1000));
+        historyData.push({
+            time: pastTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+            bqi: Math.round(70 + Math.random() * 25) // Random BQI between 70 and 95
+        });
+    }
+}
+generateInitialHistory();
 
 // --- ROUTE 1: Data Ingestion (Hardware Team hits this) ---
 app.post('/api/sensor-data', (req, res) => {
     const data = req.body;
-    
-    // Simple BQI Calculation Logic (Can be refined later)
-    // Example: High CO2 lowers the score
     let calculatedBqi = 100 - ((data.co2 - 400) / 10);
     if (calculatedBqi > 100) calculatedBqi = 100;
     if (calculatedBqi < 0) calculatedBqi = 0;
@@ -34,39 +48,39 @@ app.post('/api/sensor-data', (req, res) => {
         bqi: Math.round(calculatedBqi),
         timestamp: new Date().toISOString()
     };
-
-    console.log("New data received and BQI updated:", latestSensorData);
     res.status(200).json({ message: "Data received successfully" });
 });
 
-// --- ROUTE 2: Frontend Dashboard (Your Website hits this) ---
+// --- ROUTE 2: Frontend Live Dashboard (Updates numbers) ---
 app.get('/api/live-metrics', (req, res) => {
     res.status(200).json(latestSensorData);
 });
 
-// --- HARDWARE SIMULATOR (Runs while waiting for actual components) ---
+// --- ROUTE 3: Frontend History Graph (Loads 24h Chart) ---
+app.get('/api/history', (req, res) => {
+    res.status(200).json(historyData);
+});
+
+// --- HARDWARE SIMULATOR ---
 setInterval(() => {
-    // Generate slight fluctuations to simulate real breathing/air changes
     const fakeData = {
         device_id: "BQI-ESP32-001",
         temperature: (28.0 + (Math.random() * 2 - 1)).toFixed(1),
         humidity: (55.0 + (Math.random() * 5 - 2.5)).toFixed(1),
         voc: (1.2 + (Math.random() * 0.5 - 0.25)).toFixed(2),
-        co2: Math.round(450 + (Math.random() * 100 - 50)),
+        co2: Math.round(420 + (Math.random() * 50 - 25)),
         oxygen: (20.9 - (Math.random() * 0.2)).toFixed(1)
     };
 
-    // Simulate sending data to our own POST route
     fetch(`http://localhost:${PORT}/api/sensor-data`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(fakeData)
     }).catch(err => console.log("Simulator error:", err.message));
 
-}, 5000); // Runs every 5 seconds
+}, 5000); 
 
 // Start the server
 app.listen(PORT, () => {
-    console.log(`🚀 BQI Backend Server running on http://localhost:${PORT}`);
-    console.log(`📡 Hardware Simulator is active and generating data...`);
+    console.log(`🚀 BQI Backend Server running on port ${PORT}`);
 });
