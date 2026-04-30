@@ -293,18 +293,40 @@
             }
         });
 
-        // 2. Data Fetching Engine
-        const API_URL = 'https://api.breathiq.qzz.io/api/live-metrics';
+        // API URLs
+        const LIVE_API_URL = 'https://api.breathiq.qzz.io/api/live-metrics';
+        const HISTORY_API_URL = 'https://api.breathiq.qzz.io/api/history';
 
-        async function fetchSensorData() {
+        // 2. Fetch 24-Hour History for the Chart (Runs once on load)
+        async function fetchHistoryData() {
             try {
-                const response = await fetch(API_URL);
+                const response = await fetch(HISTORY_API_URL);
+                const historyData = await response.json();
+                
+                // Clear existing chart data
+                bqiChart.data.labels = [];
+                bqiChart.data.datasets[0].data = [];
+
+                // Populate with 24-hour data
+                historyData.forEach(point => {
+                    bqiChart.data.labels.push(point.time);
+                    bqiChart.data.datasets[0].data.push(point.bqi);
+                });
+                bqiChart.update();
+            } catch (error) {
+                console.error("Error fetching history:", error);
+            }
+        }
+
+        // 3. Fetch Live Data for the Dashboard Tiles (Runs every 5 seconds)
+        async function fetchLiveSensorData() {
+            try {
+                const response = await fetch(LIVE_API_URL);
                 const data = await response.json();
                 
                 // Update Time
                 const now = new Date();
-                const timeStr = now.toLocaleTimeString('en-US', { hour12: true });
-                document.getElementById('ui-time').innerText = timeStr;
+                document.getElementById('ui-time').innerText = now.toLocaleTimeString('en-US', { hour12: true });
 
                 // Update Raw Sensors
                 document.getElementById('ui-bqi').innerText = data.bqi;
@@ -317,19 +339,15 @@
                 // Dynamic UI Logic based on BQI Score
                 const bqiValue = document.getElementById('ui-bqi');
                 const bqiLabel = document.getElementById('ui-bqi-label');
-                
                 const statusIcon = document.getElementById('ui-status-icon');
                 const statusText = document.getElementById('ui-status-text');
                 const statusDesc = document.getElementById('ui-status-desc');
-                
                 const riskIcon = document.getElementById('ui-risk-icon');
                 const riskText = document.getElementById('ui-risk-text');
                 const riskDesc = document.getElementById('ui-risk-desc');
-                
                 const recsBox = document.getElementById('ui-recs');
 
                 if (data.bqi >= 81) {
-                    // EXCELLENT
                     bqiValue.style.color = 'var(--color-excellent)'; bqiLabel.innerText = "EXCELLENT"; bqiLabel.style.color = 'var(--color-excellent)';
                     statusText.innerText = "Excellent"; statusText.style.color = 'var(--color-excellent)'; statusIcon.style.color = 'var(--color-excellent)';
                     statusDesc.innerText = "Air quality is ideal for all activities.";
@@ -339,7 +357,6 @@
                     bqiChart.data.datasets[0].borderColor = '#10b981';
                 } 
                 else if (data.bqi >= 61) {
-                    // GOOD
                     bqiValue.style.color = 'var(--color-good)'; bqiLabel.innerText = "GOOD"; bqiLabel.style.color = 'var(--color-good)';
                     statusText.innerText = "Good"; statusText.style.color = 'var(--color-good)'; statusIcon.style.color = 'var(--color-good)';
                     statusDesc.innerText = "Air quality is acceptable.";
@@ -349,7 +366,6 @@
                     bqiChart.data.datasets[0].borderColor = '#0ea5e9';
                 }
                 else if (data.bqi >= 41) {
-                    // MODERATE
                     bqiValue.style.color = 'var(--color-moderate)'; bqiLabel.innerText = "MODERATE"; bqiLabel.style.color = 'var(--color-moderate)';
                     statusText.innerText = "Moderate"; statusText.style.color = 'var(--color-moderate)'; statusIcon.style.color = 'var(--color-moderate)';
                     statusDesc.innerText = "May affect sensitive individuals.";
@@ -359,7 +375,6 @@
                     bqiChart.data.datasets[0].borderColor = '#f59e0b';
                 }
                 else {
-                    // POOR / VERY POOR
                     bqiValue.style.color = 'var(--color-vpoor)'; bqiLabel.innerText = "POOR"; bqiLabel.style.color = 'var(--color-vpoor)';
                     statusText.innerText = "Poor"; statusText.style.color = 'var(--color-vpoor)'; statusIcon.style.color = 'var(--color-vpoor)';
                     statusDesc.innerText = "Health warning of emergency conditions.";
@@ -369,21 +384,18 @@
                     bqiChart.data.datasets[0].borderColor = '#f43f5e';
                 }
 
-                // Update the Chart
-                const chartTime = now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0') + ':' + String(now.getSeconds()).padStart(2, '0');
-                bqiChart.data.labels.push(chartTime);
-                bqiChart.data.datasets[0].data.push(data.bqi);
-                if (bqiChart.data.labels.length > 20) { bqiChart.data.labels.shift(); bqiChart.data.datasets[0].data.shift(); }
+                // Note: The chart no longer updates in this loop. It stays static with the 24hr data.
                 bqiChart.update();
 
             } catch (error) {
-                console.error("Error fetching data:", error);
+                console.error("Error fetching live data:", error);
             }
         }
 
-        // 3. Start the Engine!
-        fetchSensorData(); 
-        setInterval(fetchSensorData, 5000); 
+        // 4. Start the Engines!
+        fetchHistoryData(); // Pulls the 24h graph once
+        fetchLiveSensorData(); // Pulls the live tiles immediately
+        setInterval(fetchLiveSensorData, 5000); // Keeps the tiles updating every 5 secs
 
     </script>
 </body>
