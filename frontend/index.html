@@ -117,12 +117,12 @@
         .dv-label { font-size: 1rem; font-weight: 600;}
 
         /* --- EXPANDED VIEW 1: BQI GAUGE --- */
-        .gauge-container { width: 200px; height: 100px; position: relative; overflow: hidden; display: flex; justify-content: center; margin-bottom: 20px;}
-        .gauge-background { width: 200px; height: 200px; border-radius: 50%; background: rgba(0,0,0,0.3); position: absolute; top: 0; border: 15px solid rgba(255,255,255,0.05); border-bottom-color: transparent; border-right-color: transparent; transform: rotate(-45deg);}
-        .gauge-fill { width: 200px; height: 200px; border-radius: 50%; position: absolute; top: 0; border: 15px solid var(--color-excellent); border-bottom-color: transparent; border-right-color: transparent; transform: rotate(-45deg); transition: transform 1s cubic-bezier(0.25, 1, 0.5, 1);}
-        .gauge-text { position: absolute; bottom: -10px; text-align: center;}
+        /* --- EXPANDED VIEW 1: BQI GAUGE --- */
+        .gauge-container { width: 200px; height: 100px; position: relative; overflow: hidden; margin-bottom: 20px;}
+        .gauge-background { width: 200px; height: 200px; border-radius: 50%; position: absolute; top: 0; border: 15px solid rgba(255,255,255,0.05); }
+        .gauge-fill { width: 200px; height: 200px; border-radius: 50%; position: absolute; top: 0; border: 15px solid var(--color-excellent); border-bottom-color: transparent; border-right-color: transparent; transform: rotate(-135deg); transition: transform 1s cubic-bezier(0.25, 1, 0.5, 1);}
+        .gauge-text { position: absolute; bottom: 0; width: 100%; text-align: center;}
         .gauge-score { font-size: 3rem; font-weight: 800; line-height: 1;}
-
         /* --- EXPANDED VIEW 2: MEDICAL LUNGS --- */
         .lung-container { display: flex; align-items: center; gap: 20px; width: 100%;}
         .lung-icon { font-size: 5rem; transition: color 0.5s;}
@@ -431,8 +431,8 @@
                 document.getElementById('dv-bqi-val').innerText = bqi;
                 document.getElementById('ev-bqi-val').innerText = bqi;
                 
-                // Gauge Math: 0 BQI = -45deg, 100 BQI = 135deg (180 deg total sweep)
-                const rotation = -45 + ((bqi / 100) * 180);
+                // Gauge Math: 0 BQI = -135deg, 100 BQI = 45deg (180 deg total sweep)
+                const rotation = -135 + ((bqi / 100) * 180);
                 const gaugeFill = document.getElementById('ui-gauge-fill');
                 gaugeFill.style.transform = `rotate(${rotation}deg)`;
 
