@@ -216,6 +216,9 @@
                 data.reverse().forEach(row => {
                     const tr = document.createElement('tr');
                     
+                    // Convert raw timestamp to your local browser time
+                    const localTime = new Date(row.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
                     // Determine BQI Colors
                     let badgeColor = '';
                     let statusText = '';
@@ -224,7 +227,7 @@
                     else if(row.bqi >= 41) { badgeColor = 'background: rgba(245, 158, 11, 0.2); color: #f59e0b;'; statusText = 'Moderate'; }
                     else { badgeColor = 'background: rgba(244, 63, 94, 0.2); color: #f43f5e;'; statusText = 'Poor'; }
 
-                    // Simulate missing sensor data based on BQI score to make the table look realistic
+                    // Simulate missing sensor data
                     let fakeCo2 = Math.round(400 + ((100 - row.bqi) * 10) + (Math.random() * 20));
                     let fakeVoc = (0.5 + ((100 - row.bqi) * 0.02)).toFixed(2);
                     let fakeO2 = (20.9 - ((100 - row.bqi) * 0.01)).toFixed(1);
@@ -232,7 +235,7 @@
 
                     // Save full row to global data for Excel Export
                     globalData.push({
-                        time: row.time,
+                        time: localTime, // Use the converted time
                         bqi: row.bqi,
                         status: statusText,
                         co2: fakeCo2,
@@ -243,7 +246,7 @@
 
                     // Build the HTML row
                     tr.innerHTML = `
-                        <td style="color: var(--text-muted);"><i class="fa-regular fa-clock" style="margin-right:8px;"></i> ${row.time}</td>
+                        <td style="color: var(--text-muted);"><i class="fa-regular fa-clock" style="margin-right:8px;"></i> ${localTime}</td>
                         <td><div class="bqi-badge" style="${badgeColor}">${row.bqi}</div></td>
                         <td style="font-weight:600;">${statusText}</td>
                         <td>${fakeCo2}</td>
@@ -253,7 +256,6 @@
                     `;
                     tbody.appendChild(tr);
                 });
-
             } catch (error) {
                 console.error("Error fetching history:", error);
                 document.getElementById('table-body').innerHTML = '<tr><td colspan="7" style="text-align:center;">Failed to load data from uplink.</td></tr>';
