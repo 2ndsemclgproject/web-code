@@ -1,1 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BreathIQ | Live Readings</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- NEO-GLASSMORPHISM THEME --- */
+        :root {
+            --bg-color: #0f172a;
+            --glass-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-glow: 0 0 20px rgba(56, 189, 248, 0.15);
+            
+            --color-excellent: #10b981;
+            --color-good: #0ea5e9;
+            --color-moderate: #f59e0b;
+            --color-poor: #f97316;
+            --color-vpoor: #f43f5e;
+            
+            --color-co2: #f43f5e;
+            --color-o2: #0ea5e9;
+            --color-voc: #8b5cf6;
+            --color-temp: #f59e0b;
+            --color-hum: #06b6d4;
+        }
 
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+
+        body {
+            background: radial-gradient(circle at top right, #1e293b, var(--bg-color));
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            overflow-x: hidden;
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: 260px;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(16px);
+            border-right: 1px solid var(--glass-border);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo { font-size: 1.5rem; font-weight: 700; margin-bottom: 3rem; display: flex; align-items: center; gap: 10px; color: var(--text-main); }
+        .logo i { color: var(--color-o2); font-size: 1.8rem; }
+
+        .nav-menu { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; flex: 1; }
+        .nav-item { padding: 1rem; border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 15px; color: var(--text-muted); transition: all 0.3s; text-decoration: none;}
+        .nav-item:hover, .nav-item.active { background: rgba(255, 255, 255, 0.05); color: var(--text-main); }
+        .nav-item.active { border-left: 4px solid var(--color-o2); background: linear-gradient(90deg, rgba(14, 165, 233, 0.1) 0%, transparent 100%); }
+
+        .device-status { margin-top: auto; padding: 1.5rem; background: rgba(0,0,0,0.2); border-radius: 16px; border: 1px solid rgba(255,255,255,0.03); }
+        .device-status h3 { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 10px; }
+        .status-dot { color: var(--color-excellent); font-size: 0.7rem; margin-right: 5px; animation: pulse-dot 2s infinite;}
+        .device-info { font-size: 0.8rem; color: var(--text-muted); margin-top: 10px; line-height: 1.6;}
+        .device-info span { color: var(--text-main); display: block; }
+
+        /* --- MAIN CONTENT --- */
+        .main-content { flex: 1; padding: 2rem 3rem; display: flex; flex-direction: column; gap: 1.5rem; height: 100vh; overflow-y: auto;}
+
+        /* HEADER */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .header-title h1 { font-size: 1.8rem; font-weight: 600; display: flex; align-items: center; gap: 10px;}
+        .live-badge { background: rgba(244, 63, 94, 0.2); color: #f43f5e; padding: 4px 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; border: 1px solid rgba(244, 63, 94, 0.3); text-transform: uppercase; letter-spacing: 1px;}
+        .header-title p { color: var(--text-muted); font-size: 0.9rem; margin-top: 5px; }
+        
+        /* GRID LAYOUT */
+        .glass-panel { background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 20px; padding: 1.5rem; box-shadow: var(--accent-glow); display: flex; flex-direction: column;}
+        .panel-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; display: flex; align-items: center; gap: 10px; color: var(--text-main);}
+
+        .top-row { display: grid; grid-template-columns: 1fr 2fr; gap: 1.5rem; }
+        .bottom-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin-top: 0.5rem;}
+
+        /* WIDGET: HUGE BQI MONITOR */
+        .bqi-monitor { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; padding: 2rem 0;}
+        .bqi-ring { width: 220px; height: 220px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; z-index: 2; background: rgba(0,0,0,0.3); border: 4px solid var(--color-excellent); box-shadow: 0 0 40px rgba(16, 185, 129, 0.2); transition: all 0.5s ease;}
+        .bqi-value { font-size: 5.5rem; font-weight: 800; line-height: 1; color: var(--text-main); text-shadow: 0 0 20px rgba(255,255,255,0.2);}
+        .bqi-label { font-size: 1.2rem; font-weight: 700; letter-spacing: 2px; margin-top: 5px; color: var(--color-excellent);}
+        
+        /* CSS Breathing Animation for the ring */
+        @keyframes breathe {
+            0% { transform: scale(1); box-shadow: 0 0 30px rgba(16, 185, 129, 0.2); }
+            50% { transform: scale(1.05); box-shadow: 0 0 60px rgba(16, 185, 129, 0.4); }
+            100% { transform: scale(1); box-shadow: 0 0 30px rgba(16, 185, 129, 0.2); }
+        }
+        .breathing-effect { animation: breathe 4s ease-in-out infinite; }
+        @keyframes pulse-dot { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+
+        /* WIDGET: CHART */
+        .chart-container { flex: 1; min-height: 280px; width: 100%; position: relative; }
+
+        /* WIDGET: RAW SENSORS */
+        .sensor-card { background: rgba(0,0,0,0.2); border-radius: 16px; padding: 1.5rem; border: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; transition: transform 0.2s;}
+        .sensor-card:hover { transform: translateY(-5px); background: rgba(255,255,255,0.02);}
+        .sensor-icon { font-size: 2rem; margin-bottom: 5px; }
+        .sensor-name { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px;}
+        .sensor-reading { font-size: 2rem; font-weight: 700; color: var(--text-main); }
+        .sensor-unit { font-size: 0.9rem; color: var(--text-muted); font-weight: 400;}
+        .sensor-status { font-size: 0.75rem; padding: 3px 10px; border-radius: 10px; font-weight: 600; background: rgba(255,255,255,0.1); margin-top: 5px;}
+
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="logo"><i class="fa-solid fa-lungs"></i> BreathIQ</div>
+        <ul class="nav-menu">
+            <!-- Note how 'active' is moved to Live Readings -->
+            <a href="index.html" class="nav-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+            <a href="live.html" class="nav-item active"><i class="fa-solid fa-wave-square"></i> Live Readings</a>
+            <a href="history.html" class="nav-item"><i class="fa-solid fa-clock-rotate-left"></i> History</a>
+            <a href="reports.html" class="nav-item"><i class="fa-solid fa-file-medical"></i> Reports</a>
+            <a href="about.html" class="nav-item"><i class="fa-solid fa-circle-info"></i> About</a>
+        </ul>
+
+        <div class="device-status">
+            <h3>Hardware Uplink</h3>
+            <div style="font-weight:600;"><i class="fa-solid fa-circle status-dot"></i> Receiving Data</div>
+            <div class="device-info">
+                Ping: <span id="ui-ping">-- ms</span>
+                Last Packet: <span id="ui-time">--:--:--</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        
+        <header class="header">
+            <div class="header-title">
+                <h1>Live Telemetry <span class="live-badge"><i class="fa-solid fa-circle status-dot" style="color:inherit; font-size:0.6rem;"></i> LIVE</span></h1>
+                <p>Direct, unbuffered sensor stream updating every 5 seconds.</p>
+            </div>
+        </header>
+
+        <!-- TOP ROW: BIG GAUGE & CHART -->
+        <div class="top-row">
+            
+            <div class="glass-panel">
+                <h2 class="panel-title"><i class="fa-solid fa-heart-pulse"></i> Current BQI Pulse</h2>
+                <div class="bqi-monitor">
+                    <div class="bqi-ring breathing-effect" id="ui-ring">
+                        <div class="bqi-value" id="ui-bqi">--</div>
+                        <div class="bqi-label" id="ui-bqi-label">SYNCING</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-panel">
+                <h2 class="panel-title" style="display: flex; justify-content: space-between; width: 100%;">
+                    <span><i class="fa-solid fa-chart-line"></i> Real-Time Flow</span>
+                    <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 400;">Last 60 Seconds</span>
+                </h2>
+                <div class="chart-container"><canvas id="liveChart"></canvas></div>
+            </div>
+
+        </div>
+
+        <!-- BOTTOM ROW: INDIVIDUAL SENSORS -->
+        <div class="bottom-row">
+            <div class="sensor-card">
+                <i class="fa-solid fa-cloud sensor-icon" style="color: var(--color-co2)"></i>
+                <div class="sensor-name">Carbon Dioxide</div>
+                <div class="sensor-reading"><span id="ui-co2">--</span><span class="sensor-unit"> ppm</span></div>
+                <div class="sensor-status" id="stat-co2">Awaiting Data</div>
+            </div>
+            
+            <div class="sensor-card">
+                <i class="fa-solid fa-wind sensor-icon" style="color: var(--color-o2)"></i>
+                <div class="sensor-name">Oxygen (O2)</div>
+                <div class="sensor-reading"><span id="ui-o2">--</span><span class="sensor-unit"> %</span></div>
+                <div class="sensor-status" id="stat-o2">Awaiting Data</div>
+            </div>
+
+            <div class="sensor-card">
+                <i class="fa-solid fa-vial-virus sensor-icon" style="color: var(--color-voc)"></i>
+                <div class="sensor-name">Volatile Orgs</div>
+                <div class="sensor-reading"><span id="ui-voc">--</span><span class="sensor-unit"> ppm</span></div>
+                <div class="sensor-status" id="stat-voc">Awaiting Data</div>
+            </div>
+
+            <div class="sensor-card">
+                <i class="fa-solid fa-temperature-half sensor-icon" style="color: var(--color-temp)"></i>
+                <div class="sensor-name">Temperature</div>
+                <div class="sensor-reading"><span id="ui-temp">--</span><span class="sensor-unit"> °C</span></div>
+                <div class="sensor-status" id="stat-temp">Awaiting Data</div>
+            </div>
+
+            <div class="sensor-card">
+                <i class="fa-solid fa-droplet sensor-icon" style="color: var(--color-hum)"></i>
+                <div class="sensor-name">Humidity</div>
+                <div class="sensor-reading"><span id="ui-hum">--</span><span class="sensor-unit"> %</span></div>
+                <div class="sensor-status" id="stat-hum">Awaiting Data</div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- JAVASCRIPT ENGINE -->
+    <script>
+        // 1. Chart.js Setup (Fast updating line)
+        const ctx = document.getElementById('liveChart').getContext('2d');
+        const liveChart = new Chart(ctx, {
+            type: 'line',
+            data: { labels: [], datasets: [{ label: 'BQI Pulse', data: [], borderColor: '#0ea5e9', backgroundColor: 'rgba(14, 165, 233, 0.1)', borderWidth: 3, pointBackgroundColor: '#fff', pointRadius: 4, pointHoverRadius: 6, fill: true, tension: 0.3, stepped: false }] },
+            options: {
+                responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+                animation: { duration: 400, easing: 'linear' }, // Smooth fast transitions
+                scales: {
+                    y: { min: 0, max: 100, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#94a3b8' } },
+                    x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                }
+            }
+        });
+
+        const API_URL = 'https://api.breathiq.qzz.io/api/live-metrics';
+        let lastPing = Date.now();
+
+        async function fetchLiveTelemetry() {
+            const fetchStart = Date.now();
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                
+                // Calculate simulated ping
+                const ping = Date.now() - fetchStart;
+                document.getElementById('ui-ping').innerText = ping + ' ms';
+                
+                // Update Time
+                const now = new Date();
+                document.getElementById('ui-time').innerText = now.toLocaleTimeString('en-US', { hour12: false });
+
+                // Update Raw Sensors
+                document.getElementById('ui-bqi').innerText = data.bqi;
+                document.getElementById('ui-co2').innerText = data.co2;
+                document.getElementById('ui-o2').innerText = data.oxygen;
+                document.getElementById('ui-voc').innerText = data.voc;
+                document.getElementById('ui-temp').innerText = data.temperature;
+                document.getElementById('ui-hum').innerText = data.humidity;
+
+                // Color Logic & Ring Animation
+                const bqiRing = document.getElementById('ui-ring');
+                const bqiLabel = document.getElementById('ui-bqi-label');
+                
+                let color = '';
+                if (data.bqi >= 81) { color = 'var(--color-excellent)'; bqiLabel.innerText = "EXCELLENT"; } 
+                else if (data.bqi >= 61) { color = 'var(--color-good)'; bqiLabel.innerText = "GOOD"; }
+                else if (data.bqi >= 41) { color = 'var(--color-moderate)'; bqiLabel.innerText = "MODERATE"; }
+                else { color = 'var(--color-vpoor)'; bqiLabel.innerText = "POOR"; }
+
+                bqiRing.style.borderColor = color;
+                bqiLabel.style.color = color;
+                liveChart.data.datasets[0].borderColor = color;
+                liveChart.data.datasets[0].backgroundColor = color.replace(')', ', 0.1)').replace('var(', '').replace(')', ''); // Hacky transparent bg
+
+                // Update Chart (Keep last 12 points = 60 seconds of data)
+                const chartTime = now.getSeconds() + 's';
+                liveChart.data.labels.push(chartTime);
+                liveChart.data.datasets[0].data.push(data.bqi);
+                if (liveChart.data.labels.length > 12) { liveChart.data.labels.shift(); liveChart.data.datasets[0].data.shift(); }
+                liveChart.update();
+
+                // Update small sensor statuses (Basic simulated logic)
+                document.getElementById('stat-co2').innerText = data.co2 < 600 ? "Normal" : "Elevated";
+                document.getElementById('stat-co2').style.color = data.co2 < 600 ? "var(--color-excellent)" : "var(--color-moderate)";
+                
+                document.getElementById('stat-o2').innerText = data.oxygen > 19.5 ? "Optimal" : "Low";
+                document.getElementById('stat-o2').style.color = data.oxygen > 19.5 ? "var(--color-excellent)" : "var(--color-vpoor)";
+                
+                document.getElementById('stat-voc').innerText = data.voc < 2.0 ? "Clear" : "Detected";
+                document.getElementById('stat-voc').style.color = data.voc < 2.0 ? "var(--color-excellent)" : "var(--color-moderate)";
+
+            } catch (error) {
+                console.error("Uplink failed:", error);
+            }
+        }
+
+        // Start Live Feed
+        fetchLiveTelemetry(); 
+        setInterval(fetchLiveTelemetry, 5000); 
+
+    </script>
+</body>
+</html>
