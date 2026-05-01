@@ -23,14 +23,15 @@ let latestSensorData = {
 let historyData = [];
 
 // GENERATE FAKE 24-HOUR HISTORY ON STARTUP
+// GENERATE FAKE 24-HOUR HISTORY ON STARTUP
 function generateInitialHistory() {
     let now = new Date();
     // Create 24 data points (one for each of the last 24 hours)
     for (let i = 24; i > 0; i--) {
         let pastTime = new Date(now.getTime() - (i * 60 * 60 * 1000));
         historyData.push({
-            time: pastTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-            bqi: Math.round(70 + Math.random() * 25) // Random BQI between 70 and 95
+            timestamp: pastTime.toISOString(), // <-- Sending raw time instead of text
+            bqi: Math.round(70 + Math.random() * 25)
         });
     }
 }
