@@ -308,8 +308,10 @@
                 bqiChart.data.datasets[0].data = [];
 
                 // Populate with 24-hour data
+                // Populate with 24-hour data converted to your local timezone
                 historyData.forEach(point => {
-                    bqiChart.data.labels.push(point.time);
+                    const localTime = new Date(point.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                    bqiChart.data.labels.push(localTime);
                     bqiChart.data.datasets[0].data.push(point.bqi);
                 });
                 bqiChart.update();
