@@ -1,1 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BreathIQ | About</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- NEO-GLASSMORPHISM THEME --- */
+        :root {
+            --bg-color: #0f172a;
+            --glass-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-glow: 0 0 20px rgba(56, 189, 248, 0.15);
+            
+            --color-o2: #0ea5e9;
+            --color-bqi: #10b981;
+            --color-hardware: #f59e0b;
+            --color-backend: #8b5cf6;
+        }
 
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+
+        body {
+            background: radial-gradient(circle at top right, #1e293b, var(--bg-color));
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            overflow-x: hidden;
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: 260px;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(16px);
+            border-right: 1px solid var(--glass-border);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo { font-size: 1.5rem; font-weight: 700; margin-bottom: 3rem; display: flex; align-items: center; gap: 10px; color: var(--text-main); }
+        .logo i { color: var(--color-o2); font-size: 1.8rem; }
+
+        .nav-menu { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; flex: 1; }
+        .nav-item { padding: 1rem; border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 15px; color: var(--text-muted); transition: all 0.3s; text-decoration: none;}
+        .nav-item:hover, .nav-item.active { background: rgba(255, 255, 255, 0.05); color: var(--text-main); }
+        .nav-item.active { border-left: 4px solid var(--color-o2); background: linear-gradient(90deg, rgba(14, 165, 233, 0.1) 0%, transparent 100%); }
+
+        /* --- MAIN CONTENT --- */
+        .main-content { flex: 1; padding: 2rem 3rem; display: flex; flex-direction: column; gap: 2rem; height: 100vh; overflow-y: auto;}
+
+        /* HEADER */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+        .header-title h1 { font-size: 1.8rem; font-weight: 600; }
+        .header-title p { color: var(--text-muted); font-size: 0.9rem; margin-top: 5px; }
+        
+        /* PANELS & GRID */
+        .glass-panel { background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 20px; padding: 2rem; box-shadow: var(--accent-glow); }
+        .panel-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px; color: var(--text-main); border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 15px;}
+        
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+
+        /* TEXT STYLES */
+        p { color: var(--text-muted); line-height: 1.6; font-size: 0.95rem; margin-bottom: 1rem; }
+        strong { color: var(--text-main); }
+
+        /* TEAM LIST */
+        .team-list { display: flex; flex-direction: column; gap: 1rem; }
+        .team-member { background: rgba(0,0,0,0.2); padding: 1rem 1.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.03); display: flex; justify-content: space-between; align-items: center;}
+        .team-name { font-size: 1rem; font-weight: 600; color: var(--text-main); }
+        .team-role { font-size: 0.85rem; padding: 4px 10px; border-radius: 20px; font-weight: 600; }
+        .role-cse { background: rgba(14, 165, 233, 0.1); color: var(--color-o2); border: 1px solid rgba(14, 165, 233, 0.2); }
+        .role-md { background: rgba(16, 185, 129, 0.1); color: var(--color-bqi); border: 1px solid rgba(16, 185, 129, 0.2); }
+
+        /* ARCHITECTURE MAP */
+        .arch-map { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; padding: 1rem 0; position: relative;}
+        .arch-node { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 16px; width: 30%; text-align: center; z-index: 2;}
+        .arch-icon { font-size: 2.5rem; margin-bottom: 15px; }
+        .arch-title { font-weight: 600; font-size: 1.1rem; margin-bottom: 5px;}
+        .arch-desc { font-size: 0.8rem; color: var(--text-muted); }
+        
+        .arch-line { position: absolute; top: 50%; left: 10%; right: 10%; height: 2px; background: linear-gradient(90deg, var(--color-hardware), var(--color-backend), var(--color-o2)); z-index: 1; opacity: 0.5;}
+        .arch-arrows { position: absolute; width: 100%; display: flex; justify-content: space-around; top: 46%; z-index: 1;}
+        .arch-arrows i { color: var(--text-muted); font-size: 1.2rem; opacity: 0.5;}
+
+        /* TECH STACK LISTS */
+        .tech-ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+        .tech-ul li { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: var(--text-muted); }
+        .tech-ul i { font-size: 1.1rem; width: 20px; text-align: center; }
+
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="logo"><i class="fa-solid fa-lungs"></i> BreathIQ</div>
+        <ul class="nav-menu">
+            <a href="index.html" class="nav-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+            <a href="live.html" class="nav-item"><i class="fa-solid fa-wave-square"></i> Live Readings</a>
+            <a href="history.html" class="nav-item"><i class="fa-solid fa-clock-rotate-left"></i> History & Reports</a>
+            <!-- Active state moved to About -->
+            <a href="about.html" class="nav-item active"><i class="fa-solid fa-circle-info"></i> About</a>
+        </ul>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        
+        <header class="header">
+            <div class="header-title">
+                <h1>System Information</h1>
+                <p>Project documentation, team credits, and technical architecture.</p>
+            </div>
+        </header>
+
+        <!-- PROJECT OVERVIEW -->
+        <div class="glass-panel">
+            <h2 class="panel-title"><i class="fa-solid fa-book-medical"></i> Project Overview</h2>
+            <p><strong>BreathIQ</strong> is a comprehensive, multi-disciplinary IoT environmental and respiratory monitoring system. It was developed to bridge the gap between complex hardware sensor networks and modern, accessible medical data visualization.</p>
+            <p>The system actively measures Carbon Dioxide (CO2), Volatile Organic Compounds (VOCs), Oxygen (O2), Temperature, and Humidity. By applying a custom algorithm to these isolated metrics, the system calculates a real-time <strong>Breath Quality Index (BQI)</strong>, providing instant risk assessments and health recommendations.</p>
+        </div>
+
+        <div class="grid-2">
+            <!-- THE TEAM -->
+            <div class="glass-panel">
+                <h2 class="panel-title"><i class="fa-solid fa-users-gear"></i> Development Team</h2>
+                <p>This project is the result of a cross-disciplinary collaboration between the Computer Science & Engineering (CSE) and Medical Electronics (MD) departments.</p>
+                
+                <div class="team-list">
+                    <!-- Update these placeholders with your actual group members' names! -->
+                    <div class="team-member">
+                        <div class="team-name">Tejas (Your Name)</div>
+                        <div class="team-role role-cse">CSE / Full-Stack</div>
+                    </div>
+                    <div class="team-member">
+                        <div class="team-name">Student 2 Name</div>
+                        <div class="team-role role-cse">CSE / Backend</div>
+                    </div>
+                    <div class="team-member">
+                        <div class="team-name">Student 3 Name</div>
+                        <div class="team-role role-md">Med Electronics / Hardware</div>
+                    </div>
+                    <div class="team-member">
+                        <div class="team-name">Student 4 Name</div>
+                        <div class="team-role role-md">Med Electronics / Sensors</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TECH STACK -->
+            <div class="glass-panel">
+                <h2 class="panel-title"><i class="fa-solid fa-microchip"></i> Technology Stack</h2>
+                <div style="display: flex; justify-content: space-between; gap: 20px;">
+                    
+                    <div style="flex: 1;">
+                        <h3 style="font-size: 0.85rem; color: var(--text-main); margin-bottom: 10px; text-transform: uppercase;">Hardware Layer</h3>
+                        <ul class="tech-ul">
+                            <li><i class="fa-brands fa-usb" style="color:var(--color-hardware)"></i> ESP32 Microcontroller</li>
+                            <li><i class="fa-solid fa-cloud" style="color:var(--text-muted)"></i> MQ-135 Gas Sensor</li>
+                            <li><i class="fa-solid fa-wind" style="color:var(--text-muted)"></i> Oxygen (O2) Sensor</li>
+                            <li><i class="fa-solid fa-temperature-half" style="color:var(--text-muted)"></i> DHT11 Sensor</li>
+                        </ul>
+                    </div>
+
+                    <div style="flex: 1;">
+                        <h3 style="font-size: 0.85rem; color: var(--text-main); margin-bottom: 10px; text-transform: uppercase;">Software Layer</h3>
+                        <ul class="tech-ul">
+                            <li><i class="fa-brands fa-node-js" style="color:var(--color-bqi)"></i> Node.js & Express</li>
+                            <li><i class="fa-solid fa-server" style="color:var(--color-backend)"></i> Render API Hosting</li>
+                            <li><i class="fa-brands fa-html5" style="color:var(--color-o2)"></i> HTML5 / CSS3 / JS</li>
+                            <li><i class="fa-brands fa-github" style="color:var(--text-muted)"></i> GitHub Pages</li>
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- ARCHITECTURE DIAGRAM -->
+        <div class="glass-panel" style="margin-bottom: 2rem;">
+            <h2 class="panel-title"><i class="fa-solid fa-network-wired"></i> System Architecture</h2>
+            
+            <div class="arch-map">
+                <div class="arch-line"></div>
+                <div class="arch-arrows">
+                    <i class="fa-solid fa-chevron-right"></i>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </div>
+
+                <div class="arch-node">
+                    <i class="fa-solid fa-circuit-board arch-icon" style="color: var(--color-hardware)"></i>
+                    <div class="arch-title">Physical Sensors</div>
+                    <div class="arch-desc">ESP32 polls medical & environmental sensors and packages data into JSON payloads.</div>
+                </div>
+
+                <div class="arch-node">
+                    <i class="fa-solid fa-server arch-icon" style="color: var(--color-backend)"></i>
+                    <div class="arch-title">Cloud Backend API</div>
+                    <div class="arch-desc">Node.js server processes incoming data, calculates BQI, and stores it in the time-series log.</div>
+                </div>
+
+                <div class="arch-node">
+                    <i class="fa-solid fa-display arch-icon" style="color: var(--color-o2)"></i>
+                    <div class="arch-title">Web Client</div>
+                    <div class="arch-desc">Browser pulls data via REST API to render dynamic charts and real-time alerts.</div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+</body>
+</html>
