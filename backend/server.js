@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 10000;
 // --- 1. CONNECT TO DATABASE ---
 // REPLACE THIS STRING WITH YOUR ACTUAL MONGODB CONNECTION STRING!
 // Make sure to replace <password> with your actual database password.
-const MONGO_URI = "mongodb+srv://unnamed:<db_password>@cluster0.a2qb56r.mongodb.net/?appName=Cluster0";
+const MONGO_URI = "mongodb+srv://unnamed:unnamed5625@cluster0.a2qb56r.mongodb.net/?appName=Cluster0";
 
 mongoose.connect(MONGO_URI)
     .then(() => console.log("✅ Connected to MongoDB Atlas"))
