@@ -10,11 +10,20 @@ const PORT = process.env.PORT || 10000;
 
 // --- 1. DATABASE CONNECTION ---
 // Ensure this string is correct. Do not share this password publicly!
-const MONGO_URI = "mongodb+srv://unnamed:unnamed5625@cluster0.a2qb56r.mongodb.net/?appName=Cluster0";
+const MONGO_URI = "mongodb+srv://unnamed:unnamed5625@cluster0.a2qb56r.mongodb.net/BreathIQ?retryWrites=true&w=majority&appName=Cluster0";
 
-mongoose.connect(MONGO_URI)
-    .then(() => console.log("✅ Connected to MongoDB Atlas"))
-    .catch(err => console.error("❌ MongoDB Connection Error:", err));
+// Replace your old mongoose.connect block with this:
+const connectDB = async () => {
+    try {
+        await mongoose.connect(MONGO_URI);
+        console.log("✅ Connected to MongoDB Atlas");
+    } catch (err) {
+        console.error("❌ MongoDB Connection Error:", err);
+        process.exit(1); // Stop the server if the DB fails
+    }
+};
+
+connectDB();
 
 // --- 2. DATABASE SCHEMA ---
 const readingSchema = new mongoose.Schema({
