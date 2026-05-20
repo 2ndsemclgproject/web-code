@@ -8,16 +8,15 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 10000;
 
-// --- 1. CONNECT TO DATABASE ---
-// REPLACE THIS STRING WITH YOUR ACTUAL MONGODB CONNECTION STRING!
-// Make sure to replace <password> with your actual database password.
+// --- 1. DATABASE CONNECTION ---
+// Ensure this string is correct. Do not share this password publicly!
 const MONGO_URI = "mongodb+srv://unnamed:unnamed5625@cluster0.a2qb56r.mongodb.net/?appName=Cluster0";
 
 mongoose.connect(MONGO_URI)
     .then(() => console.log("✅ Connected to MongoDB Atlas"))
-    .catch(err => console.log("❌ MongoDB Connection Error:", err));
+    .catch(err => console.error("❌ MongoDB Connection Error:", err));
 
-// --- 2. DEFINE THE DATABASE SCHEMA ---
+// --- 2. DATABASE SCHEMA ---
 const readingSchema = new mongoose.Schema({
     device_id: String,
     temperature: Number,
@@ -31,7 +30,7 @@ const readingSchema = new mongoose.Schema({
 
 const Reading = mongoose.model('Reading', readingSchema);
 
-// --- 3. MEDICAL ELECTRONICS BREAKPOINT TABLES ---
+// --- 3. BQI CALCULATOR ---
 const co2Breakpoints = [
     { bpLo: 400, bpHi: 600, iLo: 100, iHi: 81 },   
     { bpLo: 601, bpHi: 1000, iLo: 80, iHi: 61 },   
@@ -61,57 +60,32 @@ function calculateSubIndex(cp, bpTable) {
     return 0; 
 }
 
-function calculateFinalBQI(co2, voc, o2) {
-    let co2Score = calculateSubIndex(co2, co2Breakpoints);
-    let vocScore = calculateSubIndex(voc, vocBreakpoints);
-    let o2Score = calculateSubIndex(o2, o2Breakpoints);
-    return Math.min(co2Score, vocScore, o2Score);
-}
-
 // --- 4. API ROUTES ---
-
-// Hardware Team hits this to upload data
 app.post('/api/sensor-data', async (req, res) => {
     try {
-        const data = req.body;
-        const calculatedBqi = calculateFinalBQI(data.co2, data.voc, data.oxygen);
+        const { co2, voc, oxygen, temperature, humidity, device_id } = req.body;
+        const bqi = Math.min(
+            calculateSubIndex(co2, co2Breakpoints),
+            calculateSubIndex(voc, vocBreakpoints),
+            calculateSubIndex(oxygen, o2Breakpoints)
+        );
 
-        // Save data permanently to MongoDB
-        const newReading = new Reading({
-            ...data,
-            bqi: calculatedBqi
-        });
+        const newReading = new Reading({ device_id, temperature, humidity, voc, co2, oxygen, bqi });
         await newReading.save();
-
-        res.status(200).json({ message: "Data received and stored in database" });
-    } catch (error) {
-        res.status(500).json({ error: "Failed to save data" });
+        res.status(200).json({ status: "success", bqi });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 });
 
-// Dashboards hit this to read the single newest pulse
 app.get('/api/live-metrics', async (req, res) => {
-    try {
-        // Find the absolute newest row in the database
-        const latest = await Reading.findOne().sort({ timestamp: -1 });
-        res.status(200).json(latest || { bqi: 0 }); // Send 0 if database is empty
-    } catch (error) {
-        res.status(500).json({ error: "Failed to fetch live data" });
-    }
+    const latest = await Reading.findOne().sort({ timestamp: -1 });
+    res.json(latest || { bqi: 0 });
 });
 
-// Dashboards hit this to load the graph and history table
 app.get('/api/history', async (req, res) => {
-    try {
-        // Grab the last 100 readings, sorted newest to oldest
-        const history = await Reading.find().sort({ timestamp: -1 }).limit(100);
-        res.status(200).json(history);
-    } catch (error) {
-        res.status(500).json({ error: "Failed to fetch history" });
-    }
+    const history = await Reading.find().sort({ timestamp: -1 }).limit(50);
+    res.json(history);
 });
 
-// Start the server
-app.listen(PORT, () => {
-    console.log(`🚀 BQI Database API running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Server ready on port ${PORT}`));
