@@ -197,104 +197,167 @@
 
     </main>
 
-    <!-- JAVASCRIPT ENGINE -->
-    <script>
-        const HISTORY_API_URL = 'https://api.breathiq.qzz.io/api/history';
-        let globalData = []; // Store data globally so the export button can reach it
+<script>
 
-        async function loadHistoryTable() {
-            try {
-                const response = await fetch(HISTORY_API_URL);
-                const data = await response.json();
-                const tbody = document.getElementById('table-body');
-                tbody.innerHTML = ''; // Clear loading state
+    // CHANGE ONLY THIS URL IF DEPLOYED
+    const HISTORY_API_URL = 'https://api.breathiq.qzz.io/api/history';
 
-                // NOTE: Since your current API only returns {time, bqi}, 
-                // we are simulating the other columns for the demo so the table looks complete.
-                // When your physical hardware sends all data, you just swap these out!
-                
-                data.reverse().forEach(row => {
-                    const tr = document.createElement('tr');
-                    
-                    // Convert raw timestamp to your local browser time
-                    const localTime = new Date(row.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    // Global array used for Excel Export
+    let globalData = [];
 
-                    // Determine BQI Colors
-                    let badgeColor = '';
-                    let statusText = '';
-                    if(row.bqi >= 81) { badgeColor = 'background: rgba(16, 185, 129, 0.2); color: #10b981;'; statusText = 'Excellent'; }
-                    else if(row.bqi >= 61) { badgeColor = 'background: rgba(14, 165, 233, 0.2); color: #0ea5e9;'; statusText = 'Good'; }
-                    else if(row.bqi >= 41) { badgeColor = 'background: rgba(245, 158, 11, 0.2); color: #f59e0b;'; statusText = 'Moderate'; }
-                    else { badgeColor = 'background: rgba(244, 63, 94, 0.2); color: #f43f5e;'; statusText = 'Poor'; }
+    // --- LOAD HISTORY TABLE ---
+    async function loadHistoryTable() {
 
-                    // Simulate missing sensor data
-                    let fakeCo2 = Math.round(400 + ((100 - row.bqi) * 10) + (Math.random() * 20));
-                    let fakeVoc = (0.5 + ((100 - row.bqi) * 0.02)).toFixed(2);
-                    let fakeO2 = (20.9 - ((100 - row.bqi) * 0.01)).toFixed(1);
-                    let fakeTemp = (28.0 + (Math.random() * 1)).toFixed(1);
+        try {
 
-                    // Save full row to global data for Excel Export
-                    globalData.push({
-                        time: localTime, // Use the converted time
-                        bqi: row.bqi,
-                        status: statusText,
-                        co2: fakeCo2,
-                        voc: fakeVoc,
-                        oxygen: fakeO2,
-                        temperature: fakeTemp
-                    });
+            const response = await fetch(HISTORY_API_URL);
 
-                    // Build the HTML row
-                    tr.innerHTML = `
-                        <td style="color: var(--text-muted);"><i class="fa-regular fa-clock" style="margin-right:8px;"></i> ${localTime}</td>
-                        <td><div class="bqi-badge" style="${badgeColor}">${row.bqi}</div></td>
-                        <td style="font-weight:600;">${statusText}</td>
-                        <td>${fakeCo2}</td>
-                        <td>${fakeVoc}</td>
-                        <td>${fakeO2}</td>
-                        <td>${fakeTemp}</td>
-                    `;
-                    tbody.appendChild(tr);
+            const data = await response.json();
+
+            const tbody = document.getElementById('table-body');
+
+            tbody.innerHTML = '';
+
+            globalData = [];
+
+            data.reverse().forEach(row => {
+
+                const tr = document.createElement('tr');
+
+                // Convert timestamp
+                const localTime = new Date(row.timestamp).toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit'
                 });
-            } catch (error) {
-                console.error("Error fetching history:", error);
-                document.getElementById('table-body').innerHTML = '<tr><td colspan="7" style="text-align:center;">Failed to load data from uplink.</td></tr>';
-            }
-        }
 
-        // --- EXPORT TO EXCEL (CSV) ENGINE ---
-        function exportToExcel() {
-            if (globalData.length === 0) {
-                alert("No data available to export.");
-                return;
-            }
+                // Determine BQI Colors
+                let badgeColor = '';
+                let statusText = '';
 
-            // 1. Create CSV Headers
-            let csvContent = "Timestamp,BQI Score,Status,CO2 (ppm),VOC (ppm),Oxygen (%),Temperature (C)\n";
+                if (row.bqi >= 81) {
+                    badgeColor = 'background: rgba(16, 185, 129, 0.2); color: #10b981;';
+                    statusText = 'Excellent';
+                }
+                else if (row.bqi >= 61) {
+                    badgeColor = 'background: rgba(14, 165, 233, 0.2); color: #0ea5e9;';
+                    statusText = 'Good';
+                }
+                else if (row.bqi >= 41) {
+                    badgeColor = 'background: rgba(245, 158, 11, 0.2); color: #f59e0b;';
+                    statusText = 'Moderate';
+                }
+                else {
+                    badgeColor = 'background: rgba(244, 63, 94, 0.2); color: #f43f5e;';
+                    statusText = 'Poor';
+                }
 
-            // 2. Loop through globalData and create rows
-            globalData.forEach(row => {
-                let rowData = `${row.time},${row.bqi},${row.status},${row.co2},${row.voc},${row.oxygen},${row.temperature}`;
-                csvContent += rowData + "\n";
+                // USE REAL DATABASE VALUES
+                const co2 = row.co2 ?? '--';
+                const voc = row.voc ?? '--';
+                const oxygen = row.oxygen ?? '--';
+                const temperature = row.temperature ?? '--';
+
+                // Save full row for export
+                globalData.push({
+                    time: localTime,
+                    bqi: row.bqi,
+                    status: statusText,
+                    co2,
+                    voc,
+                    oxygen,
+                    temperature
+                });
+
+                // Build table row
+                tr.innerHTML = `
+                    <td style="color: var(--text-muted);">
+                        <i class="fa-regular fa-clock" style="margin-right:8px;"></i>
+                        ${localTime}
+                    </td>
+
+                    <td>
+                        <div class="bqi-badge" style="${badgeColor}">
+                            ${row.bqi}
+                        </div>
+                    </td>
+
+                    <td style="font-weight:600;">
+                        ${statusText}
+                    </td>
+
+                    <td>${co2}</td>
+                    <td>${voc}</td>
+                    <td>${oxygen}</td>
+                    <td>${temperature}</td>
+                `;
+
+                tbody.appendChild(tr);
             });
 
-            // 3. Create a "Blob" (a file package in the browser)
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            const url = URL.createObjectURL(blob);
-            
-            // 4. Force the browser to download it
-            link.setAttribute("href", url);
-            link.setAttribute("download", "BreathIQ_Report_" + new Date().toLocaleDateString('en-GB').replace(/\//g, '-') + ".csv");
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+        }
+        catch (error) {
+
+            console.error("Error fetching history:", error);
+
+            document.getElementById('table-body').innerHTML = `
+                <tr>
+                    <td colspan="7" style="text-align:center;">
+                        Failed to load data from uplink.
+                    </td>
+                </tr>
+            `;
+        }
+    }
+
+    // --- EXPORT TO EXCEL (CSV) ENGINE ---
+    function exportToExcel() {
+
+        if (globalData.length === 0) {
+            alert("No data available to export.");
+            return;
         }
 
-        // Run on load
-        loadHistoryTable();
+        // CSV Headers
+        let csvContent = "Timestamp,BQI Score,Status,CO2 (ppm),VOC (ppm),Oxygen (%),Temperature (C)\n";
 
-    </script>
+        // Add rows
+        globalData.forEach(row => {
+
+            let rowData = `${row.time},${row.bqi},${row.status},${row.co2},${row.voc},${row.oxygen},${row.temperature}`;
+
+            csvContent += rowData + "\n";
+        });
+
+        // Create downloadable file
+        const blob = new Blob([csvContent], {
+            type: 'text/csv;charset=utf-8;'
+        });
+
+        const link = document.createElement("a");
+
+        const url = URL.createObjectURL(blob);
+
+        link.setAttribute("href", url);
+
+        link.setAttribute(
+            "download",
+            "BreathIQ_Report_" +
+            new Date().toLocaleDateString('en-GB').replace(/\//g, '-') +
+            ".csv"
+        );
+
+        link.style.visibility = 'hidden';
+
+        document.body.appendChild(link);
+
+        link.click();
+
+        document.body.removeChild(link);
+    }
+
+    // Run on page load
+    loadHistoryTable();
+
+</script>
 </body>
 </html>
