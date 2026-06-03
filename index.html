@@ -125,36 +125,45 @@
         .gauge-score { font-size: 3rem; font-weight: 800; line-height: 1;}
         /* --- EXPANDED VIEW 2: MEDICAL LUNGS --- */
         .lung-container{
-    width:100%;
-
     display:flex;
-    flex-direction:column;
-
     align-items:center;
-    justify-content:flex-start;
+    gap:20px;
 
-    text-align:center;
-
-    gap:10px;
-}
-        .lung-text{
     width:100%;
+
+    margin-top:35px;
 }
 
-.lung-text h3{
-    margin-bottom:10px;
+        .lung-icon{
+            font-size:4.5rem;
+            color:#f97316;
+            flex-shrink:0;
+        }
+
+        .lung-text{
+    flex:1;
+    text-align:left;
+    margin-top:0px;
 }
 
-.lung-text p{
-    margin-bottom:12px;
-    line-height:1.6;
-}
+        .lung-text h3{
+            margin:0 0 8px 0;
+            font-size:1.35rem;
+            font-weight:700;
+            color:#f87171;
+        }
 
-.impact-preview{
-    margin-top:10px;
-    margin-bottom:15px;
-    line-height:1.6;
-}
+        .lung-text p{
+            margin:0 0 1px 0;
+            line-height:1.5;
+        }
+
+        .impact-preview{
+            margin-bottom:1px;
+            color:var(--text-muted);
+            font-size:0.82rem;
+            line-height:1.5;
+        }
 
         /* --- EXPANDED VIEW 3: TOXICITY TIMER --- */
         .timer-container { display: flex; align-items: center; gap: 20px;}
