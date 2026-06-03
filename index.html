@@ -174,7 +174,43 @@
         /* Live Readings Redirect Link */
         .live-redirect { display: block; text-align: center; margin-top: 1.5rem; font-size: 0.8rem; color: var(--text-muted); text-decoration: none; transition: color 0.3s; }
         .live-redirect:hover { color: var(--color-o2); }
+        .impact-preview{
+    margin-top:12px;
+    color:var(--text-muted);
+    font-size:0.85rem;
+    line-height:1.6;
+}
 
+.impact-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+
+    margin-top:15px;
+
+    padding:10px 16px;
+
+    border-radius:12px;
+
+    text-decoration:none;
+
+    background:rgba(14,165,233,0.15);
+
+    border:1px solid rgba(14,165,233,0.3);
+
+    color:#0ea5e9;
+
+    font-size:0.85rem;
+
+    font-weight:600;
+
+    transition:0.3s ease;
+}
+
+.impact-btn:hover{
+    transform:translateY(-2px);
+    background:rgba(14,165,233,0.25);
+}
     </style>
 </head>
 <body>
@@ -244,14 +280,33 @@
                 </div>
 
                 <div class="expanded-view">
-                    <div class="lung-container">
-                        <i class="fa-solid fa-lungs lung-icon" id="ev-lung-icon"></i>
-                        <div class="lung-text">
-                            <h3 id="ev-status-title">Analyzing...</h3>
-                            <p id="ev-status-desc">Reading environmental telemetry to map biological impact.</p>
-                        </div>
-                    </div>
-                </div>
+
+    <div class="lung-container">
+
+        <i class="fa-solid fa-lungs lung-icon" id="ev-lung-icon"></i>
+
+        <div class="lung-text">
+
+            <h3 id="ev-status-title">Analyzing...</h3>
+
+            <p id="ev-status-desc">
+                Reading environmental telemetry...
+            </p>
+
+            <div class="impact-preview">
+                Click below for a complete medical and environmental impact analysis based on the detected air quality conditions.
+            </div>
+
+            <a href="health-impact.html" class="impact-btn">
+                <i class="fa-solid fa-book-medical"></i>
+                Detailed Health Impact Analysis →
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
             </div>
 
             <!-- BLOCK 3: RISK / TIMER -->
@@ -527,7 +582,8 @@
                 document.getElementById('ev-status-title').innerText = lungTitle;
                 document.getElementById('ev-status-title').style.color = color;
                 document.getElementById('ev-status-desc').innerText = lungDesc;
-
+                const impactBtn = document.querySelector(".impact-btn");
+                
                 document.getElementById('dv-risk-icon').style.color = color;
                 document.getElementById('dv-risk-text').innerText = riskText;
                 document.getElementById('dv-risk-text').style.color = color;
