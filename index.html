@@ -434,11 +434,12 @@
                     </div>
                 </div>
                 <div class="level-labels">
-                    <div><span>0-20</span>Very Poor</div>
-                    <div><span>21-40</span>Poor</div>
-                    <div><span>41-60</span>Moderate</div>
-                    <div><span>61-80</span>Good</div>
-                    <div><span>81-100</span>Excellent</div>
+                    <div><span>0-50</span>Good</div>
+                    <div><span>51-100</span>Satisfactory</div>
+                    <div><span>101-200</span>Moderate</div>
+                    <div><span>201-300</span>Poor</div>
+                    <div><span>301-400</span>Very Poor</div>
+                    <div><span>401-500</span>Severe</div>
                 </div>
                 <div style="text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 20px;" id="dynamic-guide-text">
                     Your BQI is calculating. Keep monitoring for better respiratory health.
@@ -478,7 +479,7 @@
             options: {
                 responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
                 scales: {
-                    y: { min: 0, max: 100, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#94a3b8' } },
+                    y: { min: 0, max: 500, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#94a3b8' } },
                     x: { grid: { display: false }, ticks: { color: '#94a3b8', maxTicksLimit: 8 } }
                 }
             }
@@ -522,8 +523,8 @@
                 document.getElementById('dv-bqi-val').innerText = bqi;
                 document.getElementById('ev-bqi-val').innerText = bqi;
                 
-                // Gauge Math: 0 BQI = -135deg, 100 BQI = 45deg (180 deg total sweep)
-                const rotation = -135 + ((bqi / 100) * 180);
+                // AQI Scale 0–500
+                const rotation = -135 + ((bqi / 500) * 180);
                 const gaugeFill = document.getElementById('ui-gauge-fill');
                 gaugeFill.style.transform = `rotate(${rotation}deg)`;
 
@@ -545,64 +546,93 @@
                 }
 
                 // Apply Medical Thresholds
-                if (bqi >= 81) {
-                    color = 'var(--color-excellent)'; label = 'Excellent'; riskText = 'Low Risk';
-                    lungTitle = "Optimal Function";
-                    lungDesc = "Air quality is ideal. No stress on respiratory or cardiovascular systems detected.";
-                    timerText = "UNLIMITED";
-                    document.getElementById('ev-timer-ring').style.animationPlayState = 'paused';
-                    document.getElementById('ev-timer-icon').className = "fa-solid fa-shield-check";
-                    document.getElementById('ev-timer-icon').style.color = color;
-                    recHtml = `<li class="rec-item"><span class="tag tag-prev">PREVENTATIVE</span> Maintain current ventilation rates.</li>
-                               <li class="rec-item"><span class="tag tag-prev">ACTIVITY</span> Ideal environment for physical exercise.</li>`;
-                } 
-                else if (bqi >= 61) {
-                    color = 'var(--color-good)'; label = 'Good'; riskText = 'Minimal Risk';
-                    lungTitle = "Acceptable Function";
-                    lungDesc = "Air quality is acceptable. Sensitive individuals should monitor for minor fatigue.";
-                    timerText = "> 8 HOURS";
-                    document.getElementById('ev-timer-ring').style.animationPlayState = 'running';
-                    document.getElementById('ev-timer-icon').className = "fa-solid fa-hourglass-half";
-                    document.getElementById('ev-timer-icon').style.color = color;
-                    recHtml = `<li class="rec-item"><span class="tag tag-act">ACTION</span> Consider running HVAC fan to cycle room air.</li>
-                               <li class="rec-item"><span class="tag tag-prev">PREVENTATIVE</span> Monitor VOC levels if cleaning.</li>`;
-                }
-                else if (bqi >= 41) {
-                    color = 'var(--color-moderate)'; label = 'Moderate'; riskText = 'Medium Risk';
-                    lungTitle = "Mild Irritation";
-                    timerText = "04h 30m";
-                    document.getElementById('ev-timer-ring').style.animationPlayState = 'running';
-                    document.getElementById('ev-timer-icon').className = "fa-solid fa-hourglass-half";
-                    document.getElementById('ev-timer-icon').style.color = color;
-                    
-                    if(worstGas === 'co2') {
-                        lungDesc = "Elevated CO2. Cognitive impairment, drowsiness, and minor headaches possible.";
-                        recHtml = `<li class="rec-item"><span class="tag tag-act">ACTION</span> Open exterior windows immediately.</li>
-                                   <li class="rec-item"><span class="tag tag-act">ACTION</span> Increase HVAC fresh air intake.</li>`;
-                    } else if (worstGas === 'voc') {
-                        lungDesc = "Elevated VOCs. Irritation of mucous membranes (eyes, nose, throat) likely.";
-                        recHtml = `<li class="rec-item"><span class="tag tag-act">ACTION</span> Identify and seal chemical/solvent sources.</li>
-                                   <li class="rec-item"><span class="tag tag-act">ACTION</span> Enable high-CFM exhaust fans.</li>`;
-                    }
-                }
-                else {
-                    color = 'var(--color-vpoor)'; label = 'Poor'; riskText = 'High Risk';
-                    lungTitle = "Respiratory Stress";
-                    timerText = "00h 15m";
-                    document.getElementById('ev-timer-ring').style.animationPlayState = 'running';
-                    document.getElementById('ev-timer-icon').className = "fa-solid fa-radiation";
-                    document.getElementById('ev-timer-icon').style.color = color;
-                    
-                    if(worstGas === 'o2') {
-                        lungDesc = "CRITICAL: Oxygen displacement detected. High risk of hypoxia and unconsciousness.";
-                        recHtml = `<li class="rec-item"><span class="tag tag-emg">EMERGENCY</span> Evacuate enclosed space immediately.</li>
-                                   <li class="rec-item"><span class="tag tag-emg">EMERGENCY</span> Inspect for rapid gas leaks (Nitrogen/Argon).</li>`;
-                    } else {
-                        lungDesc = "Toxicity threshold breached. Severe respiratory impact and long-term health risks.";
-                        recHtml = `<li class="rec-item"><span class="tag tag-emg">EMERGENCY</span> Evacuate or ventilate immediately.</li>
-                                   <li class="rec-item"><span class="tag tag-act">ACTION</span> Do not re-enter without respirators.</li>`;
-                    }
-                }
+                if (bqi <= 50) {
+    color = '#4CAF50';
+    label = 'Good';
+    riskText = 'Low Risk';
+
+    lungTitle = "Healthy Air Quality";
+    lungDesc = "Air quality is excellent. Minimal impact on health.";
+    timerText = "UNLIMITED";
+
+    document.getElementById('ev-timer-ring').style.animationPlayState = 'paused';
+    document.getElementById('ev-timer-icon').className = "fa-solid fa-shield-check";
+    document.getElementById('ev-timer-icon').style.color = color;
+}
+
+else if (bqi <= 100) {
+    color = '#8BC34A';
+    label = 'Satisfactory';
+    riskText = 'Minimal Risk';
+
+    lungTitle = "Acceptable Air Quality";
+    lungDesc = "Air quality is acceptable. Minor discomfort may occur for sensitive individuals.";
+    timerText = "> 8 HOURS";
+
+    document.getElementById('ev-timer-ring').style.animationPlayState = 'running';
+    document.getElementById('ev-timer-icon').className = "fa-solid fa-hourglass-half";
+    document.getElementById('ev-timer-icon').style.color = color;
+}
+
+else if (bqi <= 200) {
+    color = '#FFEB3B';
+    label = 'Moderate';
+    riskText = 'Medium Risk';
+
+    lungTitle = "Breathing Discomfort";
+    lungDesc = "People with respiratory diseases may experience discomfort.";
+
+    timerText = "04h 30m";
+
+    document.getElementById('ev-timer-ring').style.animationPlayState = 'running';
+    document.getElementById('ev-timer-icon').className = "fa-solid fa-hourglass-half";
+    document.getElementById('ev-timer-icon').style.color = color;
+}
+
+else if (bqi <= 300) {
+    color = '#FF9800';
+    label = 'Poor';
+    riskText = 'High Risk';
+
+    lungTitle = "Respiratory Stress";
+    lungDesc = "Breathing discomfort likely on prolonged exposure.";
+
+    timerText = "02h 00m";
+
+    document.getElementById('ev-timer-ring').style.animationPlayState = 'running';
+    document.getElementById('ev-timer-icon').className = "fa-solid fa-triangle-exclamation";
+    document.getElementById('ev-timer-icon').style.color = color;
+}
+
+else if (bqi <= 400) {
+    color = '#F44336';
+    label = 'Very Poor';
+    riskText = 'Very High Risk';
+
+    lungTitle = "Serious Respiratory Impact";
+    lungDesc = "Respiratory illness may occur with prolonged exposure.";
+
+    timerText = "00h 30m";
+
+    document.getElementById('ev-timer-ring').style.animationPlayState = 'running';
+    document.getElementById('ev-timer-icon').className = "fa-solid fa-radiation";
+    document.getElementById('ev-timer-icon').style.color = color;
+}
+
+else {
+    color = '#8B0000';
+    label = 'Severe';
+    riskText = 'Hazardous';
+
+    lungTitle = "Emergency Conditions";
+    lungDesc = "Healthy people may experience serious health effects. Immediate action required.";
+
+    timerText = "00h 05m";
+
+    document.getElementById('ev-timer-ring').style.animationPlayState = 'running';
+    document.getElementById('ev-timer-icon').className = "fa-solid fa-skull-crossbones";
+    document.getElementById('ev-timer-icon').style.color = color;
+}
 
                 // Apply Colors & Text to Elements
                 document.getElementById('dv-bqi-label').innerText = label;
