@@ -31,6 +31,7 @@ const readingSchema = new mongoose.Schema({
     voc: Number,
     co2: Number,
     oxygen: Number,
+    dust: Number,
     bqi: Number,
     timestamp: { type: Date, default: Date.now }
 });
@@ -117,7 +118,7 @@ const bqi = Math.round(bqi100 * 5);
 
         // OPTIONAL:
         // Store dangerous readings instantly
-        if (bqi < 200) {
+        if (bqi >= 300) {
 
             const emergencyReading = new Reading({
                 device_id,
