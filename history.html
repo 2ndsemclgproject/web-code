@@ -234,22 +234,30 @@
                 let badgeColor = '';
                 let statusText = '';
 
-                if (row.bqi >= 81) {
-                    badgeColor = 'background: rgba(16, 185, 129, 0.2); color: #10b981;';
-                    statusText = 'Excellent';
-                }
-                else if (row.bqi >= 61) {
-                    badgeColor = 'background: rgba(14, 165, 233, 0.2); color: #0ea5e9;';
-                    statusText = 'Good';
-                }
-                else if (row.bqi >= 41) {
-                    badgeColor = 'background: rgba(245, 158, 11, 0.2); color: #f59e0b;';
-                    statusText = 'Moderate';
-                }
-                else {
-                    badgeColor = 'background: rgba(244, 63, 94, 0.2); color: #f43f5e;';
-                    statusText = 'Poor';
-                }
+               if (row.bqi <= 50) {
+    badgeColor = 'background: rgba(76, 175, 80, 0.2); color: #4CAF50;';
+    statusText = 'Good';
+}
+else if (row.bqi <= 100) {
+    badgeColor = 'background: rgba(139, 195, 74, 0.2); color: #8BC34A;';
+    statusText = 'Satisfactory';
+}
+else if (row.bqi <= 200) {
+    badgeColor = 'background: rgba(255, 235, 59, 0.2); color: #FFEB3B;';
+    statusText = 'Moderate';
+}
+else if (row.bqi <= 300) {
+    badgeColor = 'background: rgba(255, 152, 0, 0.2); color: #FF9800;';
+    statusText = 'Poor';
+}
+else if (row.bqi <= 400) {
+    badgeColor = 'background: rgba(244, 67, 54, 0.2); color: #F44336;';
+    statusText = 'Very Poor';
+}
+else {
+    badgeColor = 'background: rgba(139, 0, 0, 0.2); color: #8B0000;';
+    statusText = 'Severe';
+}
 
                 // USE REAL DATABASE VALUES
                 const co2 = row.co2 ?? '--';
