@@ -541,7 +541,7 @@
                 scales: {
                     y: {
                         min: 0,
-                        max: 100,
+                        max: 500,
                         grid: {
                             color: 'rgba(255, 255, 255, 0.05)'
                         },
@@ -597,23 +597,30 @@
 
                 let color = '';
 
-                if (data.bqi >= 81) {
-                    color = 'var(--color-excellent)';
-                    bqiLabel.innerText = "EXCELLENT";
-                }
-                else if (data.bqi >= 61) {
-                    color = 'var(--color-good)';
-                    bqiLabel.innerText = "GOOD";
-                }
-                else if (data.bqi >= 41) {
-                    color = 'var(--color-moderate)';
-                    bqiLabel.innerText = "MODERATE";
-                }
-                else {
-                    color = 'var(--color-vpoor)';
-                    bqiLabel.innerText = "POOR";
-                }
-
+               if (data.bqi <= 50) {
+    color = '#4CAF50';
+    bqiLabel.innerText = "GOOD";
+}
+else if (data.bqi <= 100) {
+    color = '#8BC34A';
+    bqiLabel.innerText = "SATISFACTORY";
+}
+else if (data.bqi <= 200) {
+    color = '#FFEB3B';
+    bqiLabel.innerText = "MODERATE";
+}
+else if (data.bqi <= 300) {
+    color = '#FF9800';
+    bqiLabel.innerText = "POOR";
+}
+else if (data.bqi <= 400) {
+    color = '#F44336';
+    bqiLabel.innerText = "VERY POOR";
+}
+else {
+    color = '#8B0000';
+    bqiLabel.innerText = "SEVERE";
+}
                 bqiRing.style.borderColor = color;
                 bqiLabel.style.color = color;
 
