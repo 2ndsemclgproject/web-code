@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>BreathIQ | Health Impact Analysis</title>
+<title>BreathIQ | Health Impact Summary</title>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -12,16 +12,16 @@
 
 :root{
     --bg:#0f172a;
-    --panel:rgba(30,41,59,0.85);
+    --panel:rgba(30,41,59,0.8);
     --border:rgba(255,255,255,0.08);
     --text:#f8fafc;
     --muted:#94a3b8;
 
     --good:#4CAF50;
-    --satisfactory:#8BC34A;
-    --moderate:#FFC107;
+    --sat:#8BC34A;
+    --moderate:#FFD54F;
     --poor:#FF9800;
-    --verypoor:#F44336;
+    --vpoor:#F44336;
     --severe:#8B0000;
 }
 
@@ -75,9 +75,29 @@ body{
     line-height:1.8;
 }
 
+.legend{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:15px;
+    margin-bottom:40px;
+}
+
+.legend-card{
+    padding:20px;
+    border-radius:16px;
+    text-align:center;
+    font-weight:600;
+}
+
+.good{background:rgba(76,175,80,.15);}
+.sat{background:rgba(139,195,74,.15);}
+.moderate{background:rgba(255,213,79,.15);}
+.poor{background:rgba(255,152,0,.15);}
+.vpoor{background:rgba(244,67,54,.15);}
+.severe{background:rgba(139,0,0,.2);}
+
 .section{
     background:var(--panel);
-    backdrop-filter:blur(16px);
     border:1px solid var(--border);
     border-radius:20px;
     padding:30px;
@@ -85,7 +105,13 @@ body{
 }
 
 .section h2{
-    margin-bottom:15px;
+    margin-bottom:20px;
+}
+
+.section h3{
+    margin-top:18px;
+    margin-bottom:10px;
+    color:white;
 }
 
 .section p{
@@ -94,68 +120,33 @@ body{
 }
 
 .section ul{
-    margin-top:10px;
     margin-left:20px;
+    margin-top:10px;
 }
 
 .section li{
+    color:var(--muted);
     margin-bottom:8px;
-    color:var(--muted);
     line-height:1.7;
 }
 
-.aqi-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-    gap:15px;
-    margin-bottom:30px;
-}
-
-.aqi-card{
-    text-align:center;
-    padding:20px;
-    border-radius:16px;
-    font-weight:600;
-}
-
-.good{background:rgba(76,175,80,.15);}
-.satisfactory{background:rgba(139,195,74,.15);}
-.moderate{background:rgba(255,193,7,.15);}
-.poor{background:rgba(255,152,0,.15);}
-.verypoor{background:rgba(244,67,54,.15);}
-.severe{background:rgba(139,0,0,.20);}
-
-.grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
-    gap:20px;
-}
-
-.card{
-    background:rgba(255,255,255,0.03);
-    border:1px solid rgba(255,255,255,0.05);
-    border-radius:16px;
-    padding:20px;
-}
-
-.card h3{
-    margin-bottom:10px;
-}
-
-.card p{
-    color:var(--muted);
-    line-height:1.7;
-}
+.good-border{border-left:6px solid var(--good);}
+.sat-border{border-left:6px solid var(--sat);}
+.moderate-border{border-left:6px solid var(--moderate);}
+.poor-border{border-left:6px solid var(--poor);}
+.vpoor-border{border-left:6px solid var(--vpoor);}
+.severe-border{border-left:6px solid var(--severe);}
 
 .footer{
+    margin-top:40px;
     text-align:center;
     color:var(--muted);
-    margin-top:40px;
     line-height:1.8;
 }
 
 </style>
 </head>
+
 <body>
 
 <div class="container">
@@ -166,273 +157,305 @@ Back to Dashboard
 </a>
 
 <div class="hero">
-<h1>
-<i class="fa-solid fa-lungs"></i>
-Health Impact Analysis
-</h1>
+    <h1>
+        <i class="fa-solid fa-lungs"></i>
+        Health Impact Summary
+    </h1>
 
+    <p>
+        This report explains the potential health consequences associated
+        with different AQI levels measured by the BreathIQ environmental
+        monitoring system.
+    </p>
+</div>
+
+<div class="legend">
+
+    <div class="legend-card good">
+        <h3>Good</h3>
+        <p>0 - 50</p>
+    </div>
+
+    <div class="legend-card sat">
+        <h3>Satisfactory</h3>
+        <p>51 - 100</p>
+    </div>
+
+    <div class="legend-card moderate">
+        <h3>Moderate</h3>
+        <p>101 - 200</p>
+    </div>
+
+    <div class="legend-card poor">
+        <h3>Poor</h3>
+        <p>201 - 300</p>
+    </div>
+
+    <div class="legend-card vpoor">
+        <h3>Very Poor</h3>
+        <p>301 - 400</p>
+    </div>
+
+    <div class="legend-card severe">
+        <h3>Severe</h3>
+        <p>401 - 500</p>
+    </div>
+
+</div>
+
+<!-- GOOD -->
+
+<div class="section good-border">
+
+<h2>🟢 Good Air Quality (0–50)</h2>
+
+<h3>Health Impact</h3>
 <p>
-Comprehensive assessment of how environmental conditions affect respiratory,
-cardiovascular, neurological and overall human health based on data collected
-by the BreathIQ monitoring system.
-</p>
-</div>
-
-<div class="aqi-grid">
-
-<div class="aqi-card good">
-<h3>Good</h3>
-<p>0–50</p>
-</div>
-
-<div class="aqi-card satisfactory">
-<h3>Satisfactory</h3>
-<p>51–100</p>
-</div>
-
-<div class="aqi-card moderate">
-<h3>Moderate</h3>
-<p>101–200</p>
-</div>
-
-<div class="aqi-card poor">
-<h3>Poor</h3>
-<p>201–300</p>
-</div>
-
-<div class="aqi-card verypoor">
-<h3>Very Poor</h3>
-<p>301–400</p>
-</div>
-
-<div class="aqi-card severe">
-<h3>Severe</h3>
-<p>401–500</p>
-</div>
-
-</div>
-
-<div class="section">
-<h2><i class="fa-solid fa-lungs"></i> Respiratory System Effects</h2>
-
-<p>
-The respiratory system is the first biological system affected by poor air
-quality. Pollutants, dust particles and harmful gases can irritate the airway
-lining and reduce breathing efficiency.
+Air quality is considered excellent and poses little or no risk
+to human health.
 </p>
 
+<h3>Possible Effects</h3>
 <ul>
-<li>Dry throat and coughing</li>
-<li>Chest tightness and wheezing</li>
-<li>Increased mucus production</li>
-<li>Reduced oxygen exchange efficiency</li>
-<li>Breathing discomfort during activity</li>
-<li>Aggravation of asthma and COPD</li>
+<li>No expected respiratory symptoms</li>
+<li>Optimal oxygen exchange efficiency</li>
+<li>Comfortable breathing during exercise</li>
+<li>No measurable cardiovascular stress</li>
+<li>Normal cognitive performance</li>
 </ul>
 
+<h3>Long-Term Outlook</h3>
 <p>
-Long-term exposure may contribute to chronic bronchitis, reduced lung capacity,
-persistent airway inflammation and increased susceptibility to respiratory
-infections.
+No significant adverse effects are expected even with prolonged exposure.
 </p>
+
+<h3>Recommended Action</h3>
+<p>
+Normal activity can continue without restrictions.
+</p>
+
 </div>
 
-<div class="section">
-<h2><i class="fa-solid fa-heart-pulse"></i> Cardiovascular Effects</h2>
+<!-- SATISFACTORY -->
 
+<div class="section sat-border">
+
+<h2>🟢 Satisfactory Air Quality (51–100)</h2>
+
+<h3>Health Impact</h3>
 <p>
-Air pollutants can trigger systemic inflammation and oxidative stress,
-increasing strain on the cardiovascular system.
+Generally safe for the majority of the population.
 </p>
 
+<h3>Possible Symptoms</h3>
 <ul>
-<li>Elevated heart rate</li>
-<li>Increased blood pressure</li>
-<li>Reduced exercise tolerance</li>
-<li>Cardiovascular stress</li>
-<li>Fatigue during physical activity</li>
+<li>Mild throat dryness</li>
+<li>Occasional nasal irritation</li>
+<li>Minor discomfort in sensitive individuals</li>
+<li>Slight allergic reactions</li>
 </ul>
 
+<h3>Body Response</h3>
 <p>
-Long-term exposure may increase the risk of hypertension, coronary artery
-disease and stroke.
+Minor airway irritation may occur in individuals with existing
+respiratory conditions.
 </p>
+
+<h3>Long-Term Outlook</h3>
+<p>
+No permanent health damage is expected under normal exposure.
+</p>
+
+<h3>Recommended Action</h3>
+<p>
+Maintain good ventilation and continue normal activities.
+</p>
+
 </div>
 
-<div class="section">
-<h2><i class="fa-solid fa-brain"></i> Neurological & Cognitive Effects</h2>
+<!-- MODERATE -->
 
+<div class="section moderate-border">
+
+<h2>🟡 Moderate Air Quality (101–200)</h2>
+
+<h3>Health Impact</h3>
 <p>
-Poor air quality can affect concentration, mental performance and overall
-cognitive efficiency.
+Sensitive individuals may begin experiencing respiratory discomfort.
 </p>
 
+<h3>Possible Symptoms</h3>
 <ul>
-<li>Brain fog</li>
-<li>Headaches</li>
-<li>Mental fatigue</li>
-<li>Reduced concentration</li>
-<li>Slower reaction times</li>
-<li>Mood disturbances</li>
-</ul>
-
-<p>
-Elevated CO₂ concentrations and reduced oxygen availability can impair
-cognitive function and decrease productivity.
-</p>
-</div>
-
-<div class="section">
-<h2><i class="fa-solid fa-wind"></i> Oxygen Deficiency Effects</h2>
-
-<ul>
-<li>Fatigue and drowsiness</li>
-<li>Dizziness and headaches</li>
-<li>Reduced physical performance</li>
-<li>Rapid breathing</li>
-<li>Confusion and poor coordination</li>
-<li>Hypoxia in severe cases</li>
-</ul>
-
-<p>
-Reduced oxygen concentration can significantly impact cellular function,
-physical performance and overall wellbeing.
-</p>
-</div>
-
-<div class="section">
-<h2><i class="fa-solid fa-smog"></i> Dust & Particulate Matter Impact</h2>
-
-<ul>
+<li>Dry throat</li>
 <li>Eye irritation</li>
-<li>Throat irritation</li>
-<li>Sneezing and coughing</li>
-<li>Respiratory inflammation</li>
-<li>Reduced lung function</li>
-<li>Increased asthma severity</li>
+<li>Mild headaches</li>
+<li>Reduced concentration</li>
+<li>Fatigue</li>
+<li>Occasional coughing</li>
 </ul>
 
+<h3>Physiological Effects</h3>
+<ul>
+<li>Mild airway inflammation</li>
+<li>Increased mucus production</li>
+<li>Reduced breathing comfort</li>
+<li>Increased respiratory sensitivity</li>
+</ul>
+
+<h3>Long-Term Risks</h3>
+<ul>
+<li>More frequent asthma symptoms</li>
+<li>Reduced respiratory comfort</li>
+<li>Increased sensitivity to pollutants</li>
+</ul>
+
+<h3>Recommended Action</h3>
 <p>
-Fine airborne particles can penetrate deep into lung tissue and contribute to
-long-term respiratory complications.
+Improve ventilation and reduce prolonged exposure for sensitive groups.
 </p>
+
 </div>
 
-<div class="section">
-<h2><i class="fa-solid fa-flask"></i> VOC Exposure Analysis</h2>
+<!-- POOR -->
 
+<div class="section poor-border">
+
+<h2>🟠 Poor Air Quality (201–300)</h2>
+
+<h3>Health Impact</h3>
+<p>
+Air quality may affect even healthy individuals after prolonged exposure.
+</p>
+
+<h3>Possible Symptoms</h3>
 <ul>
-<li>Eye and nose irritation</li>
+<li>Persistent coughing</li>
+<li>Chest discomfort</li>
+<li>Breathing difficulty during exercise</li>
+<li>Fatigue</li>
 <li>Headaches</li>
-<li>Nausea</li>
-<li>Dizziness</li>
-<li>Respiratory discomfort</li>
-<li>Chemical sensitivity</li>
+<li>Reduced productivity</li>
 </ul>
 
-<p>
-Long-term exposure to elevated VOC concentrations may increase chronic
-respiratory irritation and negatively affect indoor environmental quality.
-</p>
-</div>
-
-<div class="section">
-<h2><i class="fa-solid fa-temperature-half"></i> Temperature & Humidity Effects</h2>
-
-<div class="grid">
-
-<div class="card">
-<h3>High Humidity</h3>
-<p>
-Can encourage mold growth, dust mites and allergen accumulation,
-increasing respiratory discomfort.
-</p>
-</div>
-
-<div class="card">
-<h3>Low Humidity</h3>
-<p>
-May cause dry skin, dry throat, nasal irritation and respiratory
-tract discomfort.
-</p>
-</div>
-
-<div class="card">
-<h3>Extreme Temperature</h3>
-<p>
-Can increase physiological stress, reduce comfort and place
-additional strain on respiratory and cardiovascular systems.
-</p>
-</div>
-
-</div>
-</div>
-
-<div class="section">
-<h2><i class="fa-solid fa-user-shield"></i> High-Risk Populations</h2>
-
-<div class="grid">
-
-<div class="card">
-<h3>Children</h3>
-<p>
-Higher breathing rates and developing lungs make children more
-susceptible to pollutant exposure.
-</p>
-</div>
-
-<div class="card">
-<h3>Elderly Individuals</h3>
-<p>
-Reduced respiratory reserve and increased cardiovascular sensitivity
-increase vulnerability.
-</p>
-</div>
-
-<div class="card">
-<h3>Asthma Patients</h3>
-<p>
-Poor air quality may trigger asthma attacks and increase airway
-inflammation.
-</p>
-</div>
-
-<div class="card">
-<h3>COPD Patients</h3>
-<p>
-Reduced lung function can make even moderate air quality conditions
-difficult to tolerate.
-</p>
-</div>
-
-<div class="card">
-<h3>Pregnant Individuals</h3>
-<p>
-Environmental stressors may increase physiological burden and
-sensitivity to hypoxic conditions.
-</p>
-</div>
-
-</div>
-</div>
-
-<div class="section">
-<h2><i class="fa-solid fa-triangle-exclamation"></i> Recommended Actions</h2>
-
+<h3>Physiological Effects</h3>
 <ul>
-<li><strong>Good:</strong> Normal activity.</li>
-<li><strong>Satisfactory:</strong> Maintain ventilation.</li>
-<li><strong>Moderate:</strong> Increase airflow and monitor sensitive individuals.</li>
-<li><strong>Poor:</strong> Reduce prolonged exposure.</li>
-<li><strong>Very Poor:</strong> Use air filtration and limit activity.</li>
-<li><strong>Severe:</strong> Immediate intervention and exposure reduction recommended.</li>
+<li>Reduced oxygen transfer efficiency</li>
+<li>Respiratory stress</li>
+<li>Increased cardiovascular workload</li>
+<li>Early inflammatory response</li>
 </ul>
+
+<h3>Long-Term Risks</h3>
+<ul>
+<li>Chronic airway irritation</li>
+<li>Reduced lung efficiency</li>
+<li>Aggravated asthma conditions</li>
+<li>Increased respiratory infections</li>
+</ul>
+
+<h3>Recommended Action</h3>
+<p>
+Limit exposure, improve air circulation and avoid strenuous activity.
+</p>
+
+</div>
+
+<!-- VERY POOR -->
+
+<div class="section vpoor-border">
+
+<h2>🔴 Very Poor Air Quality (301–400)</h2>
+
+<h3>Health Impact</h3>
+<p>
+Health effects become likely for everyone, especially vulnerable groups.
+</p>
+
+<h3>Possible Symptoms</h3>
+<ul>
+<li>Breathing difficulty</li>
+<li>Chest tightness</li>
+<li>Severe coughing</li>
+<li>Dizziness</li>
+<li>Eye irritation</li>
+<li>Persistent headaches</li>
+</ul>
+
+<h3>Physiological Effects</h3>
+<ul>
+<li>Significant respiratory inflammation</li>
+<li>Reduced lung performance</li>
+<li>Elevated heart workload</li>
+<li>Reduced oxygen utilization</li>
+</ul>
+
+<h3>Long-Term Risks</h3>
+<ul>
+<li>Accelerated respiratory decline</li>
+<li>Frequent asthma attacks</li>
+<li>Increased cardiovascular risk</li>
+<li>Persistent airway damage</li>
+</ul>
+
+<h3>Recommended Action</h3>
+<p>
+Stay indoors when possible and use air filtration systems.
+</p>
+
+</div>
+
+<!-- SEVERE -->
+
+<div class="section severe-border">
+
+<h2>🟣 Severe Air Quality (401–500)</h2>
+
+<h3>Health Impact</h3>
+<p>
+Hazardous environmental conditions. Serious health effects are possible.
+</p>
+
+<h3>Possible Symptoms</h3>
+<ul>
+<li>Severe respiratory distress</li>
+<li>Extreme fatigue</li>
+<li>Persistent chest pain</li>
+<li>Dizziness and confusion</li>
+<li>Shortness of breath</li>
+<li>Potential hypoxia</li>
+</ul>
+
+<h3>Physiological Effects</h3>
+<ul>
+<li>Severe reduction in oxygen uptake</li>
+<li>Significant cardiovascular strain</li>
+<li>Acute respiratory inflammation</li>
+<li>Potential medical emergency</li>
+</ul>
+
+<h3>Long-Term Risks</h3>
+<ul>
+<li>Permanent respiratory damage</li>
+<li>Cardiovascular complications</li>
+<li>Increased hospitalization risk</li>
+<li>Severe deterioration in vulnerable individuals</li>
+</ul>
+
+<h3>Recommended Action</h3>
+<p>
+Immediate intervention required. Leave the affected environment if
+possible and seek medical attention if symptoms occur.
+</p>
+
 </div>
 
 <div class="footer">
-This analysis is intended for educational and environmental awareness purposes
-only. It is not a substitute for professional medical advice, diagnosis or
-treatment.
+
+This analysis is intended for educational and environmental awareness
+purposes only. Actual health outcomes depend on exposure duration,
+pollutant concentration, individual sensitivity and existing medical
+conditions.
+
 </div>
 
 </div>
