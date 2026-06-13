@@ -92,11 +92,13 @@ app.post('/api/sensor-data', async (req, res) => {
         } = req.body;
 
         // Calculate BQI
-        const bqi = Math.min(
-            calculateSubIndex(co2, co2Breakpoints),
-            calculateSubIndex(voc, vocBreakpoints),
-            calculateSubIndex(oxygen, o2Breakpoints)
-        );
+        const bqi100 = Math.min(
+    calculateSubIndex(co2, co2Breakpoints),
+    calculateSubIndex(voc, vocBreakpoints),
+    calculateSubIndex(oxygen, o2Breakpoints)
+);
+
+const bqi = Math.round(bqi100 * 5);
 
         // LIVE DATA (RAM ONLY)
         latestData = {
@@ -115,7 +117,7 @@ app.post('/api/sensor-data', async (req, res) => {
 
         // OPTIONAL:
         // Store dangerous readings instantly
-        if (bqi < 40) {
+        if (bqi < 200) {
 
             const emergencyReading = new Reading({
                 device_id,
