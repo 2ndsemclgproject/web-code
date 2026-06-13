@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>BreathIQ | Health Impact Analysis</title>
+<title>BreathIQ | Health Impact Summary</title>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -12,15 +12,17 @@
 
 :root{
     --bg:#0f172a;
-    --panel:rgba(30,41,59,0.75);
+    --panel:#1e293b;
     --border:rgba(255,255,255,0.08);
     --text:#f8fafc;
     --muted:#94a3b8;
 
-    --excellent:#10b981;
-    --good:#0ea5e9;
-    --moderate:#f59e0b;
-    --poor:#f43f5e;
+    --good:#4CAF50;
+    --sat:#8BC34A;
+    --moderate:#FFEB3B;
+    --poor:#FF9800;
+    --vpoor:#F44336;
+    --severe:#8B0000;
 }
 
 *{
@@ -31,124 +33,99 @@
 }
 
 body{
-    background:
-    radial-gradient(circle at top right,#1e293b,var(--bg));
+    background:linear-gradient(135deg,#0f172a,#1e293b);
     color:var(--text);
     min-height:100vh;
 }
 
 .container{
-    max-width:1400px;
+    max-width:1200px;
     margin:auto;
     padding:40px 20px;
 }
 
-.hero{
+.header{
     text-align:center;
-    margin-bottom:50px;
+    margin-bottom:40px;
 }
 
-.hero h1{
+.header h1{
     font-size:3rem;
-    margin-bottom:15px;
-}
-
-.hero p{
-    max-width:900px;
-    margin:auto;
-    color:var(--muted);
-    line-height:1.8;
-    font-size:1.05rem;
-}
-
-.back-btn{
-    display:inline-flex;
-    align-items:center;
-    gap:10px;
-    margin-bottom:30px;
-    text-decoration:none;
-    color:white;
-    background:rgba(255,255,255,0.08);
-    border:1px solid var(--border);
-    padding:12px 18px;
-    border-radius:12px;
-}
-
-.section{
-    background:var(--panel);
-    backdrop-filter:blur(20px);
-    border:1px solid var(--border);
-    border-radius:20px;
-    padding:30px;
-    margin-bottom:30px;
-}
-
-.section h2{
-    margin-bottom:20px;
-    display:flex;
-    align-items:center;
-    gap:10px;
-}
-
-.section h3{
-    margin-top:20px;
     margin-bottom:10px;
 }
 
-.section p{
+.header p{
     color:var(--muted);
+    max-width:700px;
+    margin:auto;
     line-height:1.8;
 }
 
-.section ul{
-    margin-left:20px;
-    margin-top:10px;
+.summary-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    gap:20px;
+    margin-top:30px;
 }
 
-.section li{
-    margin-bottom:8px;
+.card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:18px;
+    padding:25px;
+}
+
+.card h2{
+    margin-bottom:12px;
+    font-size:1.2rem;
+}
+
+.card p{
     color:var(--muted);
     line-height:1.7;
 }
 
-.excellent{
-    border-left:6px solid var(--excellent);
+.good{border-left:6px solid var(--good);}
+.sat{border-left:6px solid var(--sat);}
+.mod{border-left:6px solid var(--moderate);}
+.poor{border-left:6px solid var(--poor);}
+.vpoor{border-left:6px solid var(--vpoor);}
+.severe{border-left:6px solid var(--severe);}
+
+.sensor-section{
+    margin-top:50px;
 }
 
-.good{
-    border-left:6px solid var(--good);
+.sensor-section h2{
+    margin-bottom:20px;
 }
 
-.moderate{
-    border-left:6px solid var(--moderate);
-}
-
-.poor{
-    border-left:6px solid var(--poor);
-}
-
-.grid{
+.sensor-grid{
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
     gap:20px;
 }
 
-.card{
-    background:rgba(0,0,0,0.2);
-    border:1px solid rgba(255,255,255,0.05);
+.sensor-card{
+    background:var(--panel);
+    border:1px solid var(--border);
     border-radius:16px;
     padding:20px;
 }
 
-.card h3{
+.sensor-card h3{
     margin-bottom:10px;
 }
 
-.footer-note{
-    text-align:center;
+.sensor-card p{
     color:var(--muted);
-    margin-top:40px;
-    line-height:1.8;
+    line-height:1.7;
+}
+
+.footer{
+    text-align:center;
+    margin-top:50px;
+    color:var(--muted);
 }
 
 </style>
@@ -157,233 +134,127 @@ body{
 
 <div class="container">
 
-<a href="index" class="back-btn">
-<i class="fa-solid fa-arrow-left"></i>
-Back to Dashboard
-</a>
-
-<div class="hero">
-<h1>
-<i class="fa-solid fa-lungs"></i>
-Health Impact Analysis
-</h1>
-
-<p>
-Understand how prolonged exposure to different air quality conditions can affect
-the respiratory system, cardiovascular health, oxygen exchange efficiency,
-cognitive performance and overall wellbeing.
-</p>
+<div class="header">
+    <h1><i class="fa-solid fa-lungs"></i> Health Impact Summary</h1>
+    <p>
+        This page summarizes the potential health effects associated with
+        different air quality levels and environmental conditions monitored
+        by the BreathIQ system.
+    </p>
 </div>
 
-<div class="section excellent">
-<h2>🟢 Excellent Air Quality (BQI 81–100)</h2>
+<div class="summary-grid">
 
-<h3>Respiratory Health</h3>
-<p>
-Air quality is considered optimal. Pollutant concentrations are sufficiently low
-that the lungs can perform oxygen exchange efficiently without measurable
-respiratory stress.
-</p>
+    <div class="card good">
+        <h2>🟢 Good (0–50)</h2>
+        <p>
+            Air quality is considered safe. No significant health impacts are
+            expected for the general population.
+        </p>
+    </div>
 
-<h3>Benefits</h3>
-<ul>
-<li>Efficient oxygen absorption</li>
-<li>Lower respiratory irritation</li>
-<li>Improved exercise performance</li>
-<li>Reduced airway inflammation risk</li>
-<li>Better sleep quality</li>
-</ul>
+    <div class="card sat">
+        <h2>🟢 Satisfactory (51–100)</h2>
+        <p>
+            Acceptable air quality. Sensitive individuals may experience
+            minor irritation after prolonged exposure.
+        </p>
+    </div>
 
-<h3>Long-Term Exposure</h3>
-<p>
-No significant health concerns are expected even during prolonged exposure.
-This environment is ideal for children, elderly individuals, athletes and
-people with respiratory conditions.
-</p>
-</div>
+    <div class="card mod">
+        <h2>🟡 Moderate (101–200)</h2>
+        <p>
+            Individuals with respiratory conditions may experience discomfort,
+            headaches, fatigue, or mild breathing difficulty.
+        </p>
+    </div>
 
-<div class="section good">
-<h2>🔵 Good Air Quality (BQI 61–80)</h2>
+    <div class="card poor">
+        <h2>🟠 Poor (201–300)</h2>
+        <p>
+            Prolonged exposure may lead to coughing, chest irritation,
+            breathing discomfort, and reduced concentration.
+        </p>
+    </div>
 
-<h3>Respiratory Effects</h3>
-<p>
-Air quality remains acceptable for most individuals. However, prolonged
-exposure may cause mild irritation in sensitive groups.
-</p>
+    <div class="card vpoor">
+        <h2>🔴 Very Poor (301–400)</h2>
+        <p>
+            Significant respiratory stress may occur. Vulnerable populations
+            should reduce exposure and improve ventilation.
+        </p>
+    </div>
 
-<h3>Possible Symptoms</h3>
-<ul>
-<li>Mild throat irritation</li>
-<li>Occasional nasal discomfort</li>
-<li>Minor allergic reactions</li>
-<li>Slight breathing discomfort during intense activity</li>
-</ul>
-
-<h3>Long-Term Impact</h3>
-<p>
-Generally safe. Individuals with asthma or allergies may experience
-intermittent symptoms after extended exposure.
-</p>
-</div>
-
-<div class="section moderate">
-<h2>🟠 Moderate Air Quality (BQI 41–60)</h2>
-
-<h3>Immediate Effects</h3>
-
-<ul>
-<li>Dry throat</li>
-<li>Eye irritation</li>
-<li>Headaches</li>
-<li>Reduced concentration</li>
-<li>Fatigue</li>
-<li>Mild coughing</li>
-</ul>
-
-<h3>What Happens Inside The Body</h3>
-
-<p>
-Airborne pollutants begin interacting with the respiratory tract and bronchial
-passages. The body's immune system may respond by increasing mucus production
-and triggering low-level inflammation.
-</p>
-
-<h3>Long-Term Exposure Risks</h3>
-
-<ul>
-<li>Chronic respiratory irritation</li>
-<li>Reduced lung efficiency</li>
-<li>Increased sensitivity to allergens</li>
-<li>Higher frequency of asthma symptoms</li>
-</ul>
-
-<h3>High-Risk Groups</h3>
-
-<ul>
-<li>Children</li>
-<li>Elderly individuals</li>
-<li>Pregnant women</li>
-<li>Asthma patients</li>
-<li>COPD patients</li>
-</ul>
-</div>
-
-<div class="section poor">
-<h2>🔴 Poor Air Quality (BQI 0–40)</h2>
-
-<h3>Immediate Health Effects</h3>
-
-<ul>
-<li>Persistent coughing</li>
-<li>Chest tightness</li>
-<li>Shortness of breath</li>
-<li>Eye irritation</li>
-<li>Dizziness</li>
-<li>Fatigue</li>
-<li>Headaches</li>
-</ul>
-
-<h3>Respiratory Impact</h3>
-
-<p>
-High pollutant concentrations can inflame the airways, reduce oxygen exchange
-efficiency and place significant stress on lung tissue. Breathing may become
-more difficult, particularly during physical activity.
-</p>
-
-<h3>Cardiovascular Effects</h3>
-
-<ul>
-<li>Increased blood pressure</li>
-<li>Higher cardiac workload</li>
-<li>Elevated heart stress</li>
-<li>Potential cardiovascular complications</li>
-</ul>
-
-<h3>Neurological Effects</h3>
-
-<ul>
-<li>Mental fatigue</li>
-<li>Reduced focus</li>
-<li>Memory impairment</li>
-<li>Mood disturbances</li>
-<li>Reduced productivity</li>
-</ul>
-
-<h3>Long-Term Consequences</h3>
-
-<ul>
-<li>Chronic bronchitis</li>
-<li>Reduced lung capacity</li>
-<li>Worsening asthma symptoms</li>
-<li>Persistent airway inflammation</li>
-<li>Cardiovascular disease risk</li>
-</ul>
-
-<h3>Recommended Action</h3>
-
-<ul>
-<li>Improve ventilation immediately</li>
-<li>Reduce exposure time</li>
-<li>Use filtration masks when necessary</li>
-<li>Seek medical attention if symptoms persist</li>
-</ul>
+    <div class="card severe">
+        <h2>🟣 Severe (401–500)</h2>
+        <p>
+            Hazardous conditions. Immediate action is recommended to reduce
+            exposure and improve air quality.
+        </p>
+    </div>
 
 </div>
 
-<div class="section">
+<div class="sensor-section">
 
-<h2>
-<i class="fa-solid fa-microscope"></i>
-Pollutant Breakdown
-</h2>
+    <h2><i class="fa-solid fa-microscope"></i> Sensor Health Impact Overview</h2>
 
-<div class="grid">
+    <div class="sensor-grid">
 
-<div class="card">
-<h3>Carbon Dioxide (CO₂)</h3>
-<p>
-Elevated CO₂ levels can contribute to drowsiness, headaches, reduced cognitive
-performance and fatigue. Extremely high levels may impair decision-making and
-alertness.
-</p>
+        <div class="sensor-card">
+            <h3>CO₂ Levels</h3>
+            <p>
+                Elevated CO₂ can contribute to drowsiness, headaches,
+                reduced concentration, and fatigue.
+            </p>
+        </div>
+
+        <div class="sensor-card">
+            <h3>VOC Levels</h3>
+            <p>
+                High VOC concentrations may irritate the eyes, nose,
+                and throat while affecting indoor comfort.
+            </p>
+        </div>
+
+        <div class="sensor-card">
+            <h3>Dust Particles</h3>
+            <p>
+                Fine particles can enter deep into the lungs and contribute
+                to respiratory irritation and inflammation.
+            </p>
+        </div>
+
+        <div class="sensor-card">
+            <h3>Temperature</h3>
+            <p>
+                Extreme temperatures can increase physical stress and
+                affect overall comfort and wellbeing.
+            </p>
+        </div>
+
+        <div class="sensor-card">
+            <h3>Humidity</h3>
+            <p>
+                Low humidity may dry the respiratory tract, while high
+                humidity can promote mold and allergen growth.
+            </p>
+        </div>
+
+        <div class="sensor-card">
+            <h3>Oxygen Levels</h3>
+            <p>
+                Reduced oxygen levels can impact breathing efficiency,
+                alertness, and physical performance.
+            </p>
+        </div>
+
+    </div>
+
 </div>
 
-<div class="card">
-<h3>Volatile Organic Compounds (VOC)</h3>
-<p>
-Prolonged exposure may result in eye irritation, respiratory discomfort,
-headaches, nausea and long-term health concerns depending on concentration and
-chemical composition.
-</p>
-</div>
-
-<div class="card">
-<h3>Humidity</h3>
-<p>
-Low humidity can dry the skin and respiratory tract. High humidity encourages
-mold growth, allergen proliferation and breathing discomfort.
-</p>
-</div>
-
-<div class="card">
-<h3>Temperature</h3>
-<p>
-Extreme temperatures increase physiological stress, reduce comfort and can
-place additional strain on respiratory and cardiovascular systems.
-</p>
-</div>
-
-</div>
-
-</div>
-
-<div class="footer-note">
-
-This analysis is intended for educational and environmental awareness purposes.
-Actual health outcomes depend on exposure duration, pollutant concentration,
-individual sensitivity and existing medical conditions.
-
+<div class="footer">
+    BreathIQ Health Impact Summary • Educational & Awareness Purposes Only
 </div>
 
 </div>
