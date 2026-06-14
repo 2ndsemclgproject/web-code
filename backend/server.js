@@ -25,7 +25,6 @@ humidity: Number,
 mq135: Number,
 dust: Number,
 spo2: Number,
-heartRate: Number,
 aqi: Number,
 bqi: Number,
 category: String,
@@ -157,9 +156,8 @@ temperature,
 humidity,
 mq135,
 dust,
-spo2,
-heartRate
-} = req.body;
+spo2
+    } = req.body;
 
     const aqi = calculateAQI(dust);
 
@@ -197,8 +195,7 @@ heartRate
         mq135,
         dust,
         spo2,
-        heartRate,
-        aqi,
+          aqi,
         bqi,
         category,
         riskLevel,
@@ -266,10 +263,6 @@ return;
         minuteBuffer.reduce((s, i) => s + i.spo2, 0)
         / minuteBuffer.length;
 
-    const avgHeartRate =
-        minuteBuffer.reduce((s, i) => s + i.heartRate, 0)
-        / minuteBuffer.length;
-
     const aqi =
         calculateAQI(avgDust);
 
@@ -302,8 +295,6 @@ return;
             spo2:
                 Number(avgSpo2.toFixed(2)),
 
-            heartRate:
-                Number(avgHeartRate.toFixed(2)),
 
             aqi,
 
