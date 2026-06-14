@@ -1,229 +1,349 @@
-const express = require('express');
-const cors = require('cors');
-const mongoose = require('mongoose');
+const express = require("express");
+const cors = require("cors");
+const mongoose = require("mongoose");
 
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 
 const PORT = process.env.PORT || 10000;
 
-// --- 1. DATABASE CONNECTION ---
 const MONGO_URI = "mongodb+srv://unnamed:unnamed5625@cluster0.a2qb56r.mongodb.net/BreathIQ?retryWrites=true&w=majority&appName=Cluster0";
 
-const connectDB = async () => {
-    try {
-        await mongoose.connect(MONGO_URI);
-        console.log("✅ Connected to MongoDB Atlas");
-    } catch (err) {
-        console.error("❌ MongoDB Connection Error:", err);
-        process.exit(1);
-    }
-};
-
-connectDB();
-
-// --- 2. DATABASE SCHEMA ---
-const readingSchema = new mongoose.Schema({
-    device_id: String,
-    temperature: Number,
-    humidity: Number,
-    voc: Number,
-    co2: Number,
-    oxygen: Number,
-    dust: Number,
-    bqi: Number,
-    timestamp: { type: Date, default: Date.now }
+mongoose.connect(MONGO_URI)
+.then(() => console.log("MongoDB Connected"))
+.catch(err => {
+console.error(err);
+process.exit(1);
 });
 
-const Reading = mongoose.model('Reading', readingSchema);
+const readingSchema = new mongoose.Schema({
+device_id: String,
+temperature: Number,
+humidity: Number,
+mq135: Number,
+dust: Number,
+spo2: Number,
+heartRate: Number,
+aqi: Number,
+bqi: Number,
+category: String,
+riskLevel: String,
+timestamp: {
+type: Date,
+default: Date.now
+}
+});
 
-// --- 3. LIVE DATA STORAGE (RAM ONLY) ---
-let latestData = {
-    bqi: 0
-};
+const Reading = mongoose.model("Reading", readingSchema);
+
+let latestData = {};
 
 let minuteBuffer = [];
 
-// --- 4. BQI CALCULATOR ---
-const co2Breakpoints = [
-    { bpLo: 400, bpHi: 600, iLo: 100, iHi: 81 },
-    { bpLo: 601, bpHi: 1000, iLo: 80, iHi: 61 },
-    { bpLo: 1001, bpHi: 1500, iLo: 60, iHi: 41 },
-    { bpLo: 1501, bpHi: 5000, iLo: 40, iHi: 0 }
-];
+function calculateAQI(pm)
+{
+if (pm <= 12.0)
+return Math.round(((50 - 0) / (12.0 - 0.0)) * (pm - 0.0));
 
-const vocBreakpoints = [
-    { bpLo: 0.0, bpHi: 0.5, iLo: 100, iHi: 81 },
-    { bpLo: 0.51, bpHi: 1.0, iLo: 80, iHi: 61 },
-    { bpLo: 1.01, bpHi: 2.0, iLo: 60, iHi: 41 },
-    { bpLo: 2.01, bpHi: 10.0, iLo: 40, iHi: 0 }
-];
+```
+if (pm <= 35.4)
+    return Math.round(((100 - 51) / (35.4 - 12.1)) * (pm - 12.1) + 51);
 
-const o2Breakpoints = [
-    { bpLo: 20.5, bpHi: 21.0, iLo: 81, iHi: 100 },
-    { bpLo: 19.5, bpHi: 20.4, iLo: 61, iHi: 80 },
-    { bpLo: 18.0, bpHi: 19.4, iLo: 41, iHi: 60 },
-    { bpLo: 0.0, bpHi: 17.9, iLo: 0, iHi: 40 }
-];
+if (pm <= 55.4)
+    return Math.round(((150 - 101) / (55.4 - 35.5)) * (pm - 35.5) + 101);
 
-function calculateSubIndex(cp, bpTable) {
-    for (let tier of bpTable) {
-        if (cp >= tier.bpLo && cp <= tier.bpHi) {
-            let ip = ((tier.iHi - tier.iLo) / (tier.bpHi - tier.bpLo)) * (cp - tier.bpLo) + tier.iLo;
-            return Math.round(ip);
-        }
-    }
-    return 0;
+if (pm <= 150.4)
+    return Math.round(((200 - 151) / (150.4 - 55.5)) * (pm - 55.5) + 151);
+
+if (pm <= 250.4)
+    return Math.round(((300 - 201) / (250.4 - 150.5)) * (pm - 150.5) + 201);
+
+if (pm <= 350.4)
+    return Math.round(((400 - 301) / (350.4 - 250.5)) * (pm - 250.5) + 301);
+
+if (pm <= 500)
+    return Math.round(((500 - 401) / (500 - 350.5)) * (pm - 350.5) + 401);
+
+return 500;
+```
+
 }
 
-// --- 5. API ROUTES ---
+function getTemperatureScore(temp)
+{
+if (temp >= 22 && temp <= 28)
+return 0;
 
-// ESP32 sends data here every 5 seconds
-app.post('/api/sensor-data', async (req, res) => {
-    try {
+```
+if (temp < 22)
+    return Math.min(500, (22 - temp) * 20);
 
-        const {
-            co2,
-            voc,
-            oxygen,
-            temperature,
-            humidity,
-            device_id
-        } = req.body;
+return Math.min(500, (temp - 28) * 20);
+```
 
-        // Calculate BQI
-        const bqi100 = Math.min(
-    calculateSubIndex(co2, co2Breakpoints),
-    calculateSubIndex(voc, vocBreakpoints),
-    calculateSubIndex(oxygen, o2Breakpoints)
+}
+
+function getHumidityScore(humidity)
+{
+if (humidity >= 40 && humidity <= 60)
+return 0;
+
+```
+if (humidity < 40)
+    return Math.min(500, (40 - humidity) * 10);
+
+return Math.min(500, (humidity - 60) * 10);
+```
+
+}
+
+function getSpo2Score(spo2)
+{
+if (spo2 < 0)
+return 250;
+
+```
+if (spo2 >= 98)
+    return 0;
+
+return Math.min(500, (100 - spo2) * 25);
+```
+
+}
+
+function getMQ135Score(value)
+{
+return Math.round((value / 4095) * 500);
+}
+
+function calculateBQI(
+aqi,
+mq135Score,
+humidityScore,
+temperatureScore,
+spo2Score
+)
+{
+return Math.round(
+(aqi * 0.50) +
+(mq135Score * 0.25) +
+(humidityScore * 0.10) +
+(temperatureScore * 0.10) +
+(spo2Score * 0.05)
 );
+}
 
-const bqi = Math.round(bqi100 * 5);
+function getCategory(value)
+{
+if (value <= 50) return "Good";
+if (value <= 100) return "Satisfactory";
+if (value <= 200) return "Moderate";
+if (value <= 300) return "Poor";
+if (value <= 400) return "Very Poor";
+return "Severe";
+}
 
-        // LIVE DATA (RAM ONLY)
-        latestData = {
-            device_id,
-            temperature,
-            humidity,
-            voc,
-            co2,
-            oxygen,
+function getRiskLevel(value)
+{
+if (value <= 50) return "Low Risk";
+if (value <= 100) return "Minimal Risk";
+if (value <= 200) return "Medium Risk";
+if (value <= 300) return "High Risk";
+if (value <= 400) return "Very High Risk";
+return "Critical Risk";
+}
+
+app.post("/api/sensor-data", async (req, res) =>
+{
+try
+{
+const {
+device_id,
+temperature,
+humidity,
+mq135,
+dust,
+spo2,
+heartRate
+} = req.body;
+
+```
+    const aqi = calculateAQI(dust);
+
+    const mq135Score =
+        getMQ135Score(mq135);
+
+    const humidityScore =
+        getHumidityScore(humidity);
+
+    const temperatureScore =
+        getTemperatureScore(temperature);
+
+    const spo2Score =
+        getSpo2Score(spo2);
+
+    const bqi =
+        calculateBQI(
+            aqi,
+            mq135Score,
+            humidityScore,
+            temperatureScore,
+            spo2Score
+        );
+
+    const category =
+        getCategory(bqi);
+
+    const riskLevel =
+        getRiskLevel(bqi);
+
+    latestData = {
+        device_id,
+        temperature,
+        humidity,
+        mq135,
+        dust,
+        spo2,
+        heartRate,
+        aqi,
+        bqi,
+        category,
+        riskLevel,
+        timestamp: new Date()
+    };
+
+    minuteBuffer.push(latestData);
+
+    res.status(200).json({
+        status: "success",
+        aqi,
+        bqi,
+        category
+    });
+}
+catch (err)
+{
+    res.status(500).json({
+        error: err.message
+    });
+}
+```
+
+});
+
+app.get("/api/live-metrics", (req, res) =>
+{
+res.json(latestData);
+});
+
+app.get("/api/history", async (req, res) =>
+{
+const history =
+await Reading.find()
+.sort({ timestamp: -1 })
+.limit(100);
+
+```
+res.json(history);
+```
+
+});
+
+setInterval(async () =>
+{
+try
+{
+if (minuteBuffer.length === 0)
+return;
+
+```
+    const avgTemperature =
+        minuteBuffer.reduce((s, i) => s + i.temperature, 0)
+        / minuteBuffer.length;
+
+    const avgHumidity =
+        minuteBuffer.reduce((s, i) => s + i.humidity, 0)
+        / minuteBuffer.length;
+
+    const avgMQ135 =
+        minuteBuffer.reduce((s, i) => s + i.mq135, 0)
+        / minuteBuffer.length;
+
+    const avgDust =
+        minuteBuffer.reduce((s, i) => s + i.dust, 0)
+        / minuteBuffer.length;
+
+    const avgSpo2 =
+        minuteBuffer.reduce((s, i) => s + i.spo2, 0)
+        / minuteBuffer.length;
+
+    const avgHeartRate =
+        minuteBuffer.reduce((s, i) => s + i.heartRate, 0)
+        / minuteBuffer.length;
+
+    const aqi =
+        calculateAQI(avgDust);
+
+    const bqi =
+        calculateBQI(
+            aqi,
+            getMQ135Score(avgMQ135),
+            getHumidityScore(avgHumidity),
+            getTemperatureScore(avgTemperature),
+            getSpo2Score(avgSpo2)
+        );
+
+    const reading =
+        new Reading({
+            device_id:
+                minuteBuffer[0].device_id,
+
+            temperature:
+                Number(avgTemperature.toFixed(2)),
+
+            humidity:
+                Number(avgHumidity.toFixed(2)),
+
+            mq135:
+                Number(avgMQ135.toFixed(2)),
+
+            dust:
+                Number(avgDust.toFixed(2)),
+
+            spo2:
+                Number(avgSpo2.toFixed(2)),
+
+            heartRate:
+                Number(avgHeartRate.toFixed(2)),
+
+            aqi,
+
             bqi,
-            timestamp: new Date()
-        };
 
-        // ADD TO 1-MIN BUFFER
-        minuteBuffer.push(latestData);
+            category:
+                getCategory(bqi),
 
-        // OPTIONAL:
-        // Store dangerous readings instantly
-        if (bqi >= 300) {
-
-            const emergencyReading = new Reading({
-                device_id,
-                temperature,
-                humidity,
-                voc,
-                co2,
-                oxygen,
-                bqi
-            });
-
-            await emergencyReading.save();
-
-            console.log("⚠ Dangerous reading stored instantly");
-        }
-
-        res.status(200).json({
-            status: "success",
-            bqi
+            riskLevel:
+                getRiskLevel(bqi)
         });
 
-    } catch (err) {
-        res.status(500).json({
-            error: err.message
-        });
-    }
-});
+    await reading.save();
 
-// LIVE PAGE API
-app.get('/api/live-metrics', async (req, res) => {
-    res.json(latestData);
-});
-
-// HISTORY PAGE API
-app.get('/api/history', async (req, res) => {
-
-    const history = await Reading.find()
-        .sort({ timestamp: -1 })
-        .limit(50);
-
-    res.json(history);
-});
-
-// --- 6. SAVE 1-MINUTE AVERAGES TO DATABASE ---
-
-setInterval(async () => {
-
-    try {
-
-        if (minuteBuffer.length === 0) {
-            return;
-        }
-
-        // Average calculations
-        const avgTemperature =
-            minuteBuffer.reduce((sum, item) => sum + item.temperature, 0)
-            / minuteBuffer.length;
-
-        const avgHumidity =
-            minuteBuffer.reduce((sum, item) => sum + item.humidity, 0)
-            / minuteBuffer.length;
-
-        const avgVOC =
-            minuteBuffer.reduce((sum, item) => sum + item.voc, 0)
-            / minuteBuffer.length;
-
-        const avgCO2 =
-            minuteBuffer.reduce((sum, item) => sum + item.co2, 0)
-            / minuteBuffer.length;
-
-        const avgOxygen =
-            minuteBuffer.reduce((sum, item) => sum + item.oxygen, 0)
-            / minuteBuffer.length;
-
-        const avgBQI =
-            minuteBuffer.reduce((sum, item) => sum + item.bqi, 0)
-            / minuteBuffer.length;
-
-        // Save ONE averaged document
-        const averagedReading = new Reading({
-            device_id: minuteBuffer[0].device_id,
-            temperature: Number(avgTemperature.toFixed(2)),
-            humidity: Number(avgHumidity.toFixed(2)),
-            voc: Number(avgVOC.toFixed(2)),
-            co2: Number(avgCO2.toFixed(2)),
-            oxygen: Number(avgOxygen.toFixed(2)),
-            bqi: Number(avgBQI.toFixed(2))
-        });
-
-        await averagedReading.save();
-
-        console.log("✅ 1-minute averaged data saved");
-
-        // CLEAR BUFFER
-        minuteBuffer = [];
-
-    } catch (err) {
-
-        console.error("❌ Error saving averaged data:", err.message);
-
-    }
+    minuteBuffer = [];
+}
+catch (err)
+{
+    console.error(err.message);
+}
+```
 
 }, 60000);
 
-// --- 7. START SERVER ---
-app.listen(PORT, () => {
-    console.log(`✅ Server ready on port ${PORT}`);
+app.listen(PORT, () =>
+{
+console.log(
+`Server Running On Port ${PORT}`
+);
 });
