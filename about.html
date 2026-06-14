@@ -1,219 +1,707 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BreathIQ | About</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <style>
-        /* --- NEO-GLASSMORPHISM THEME --- */
-        :root {
-            --bg-color: #0f172a;
-            --glass-bg: rgba(30, 41, 59, 0.7);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --accent-glow: 0 0 20px rgba(56, 189, 248, 0.15);
-            
-            --color-o2: #0ea5e9;
-            --color-bqi: #10b981;
-            --color-hardware: #f59e0b;
-            --color-backend: #8b5cf6;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BreathIQ | About</title>
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-        body {
-            background: radial-gradient(circle at top right, #1e293b, var(--bg-color));
-            color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            overflow-x: hidden;
-        }
+<style>
+:root{
+    --bg:#0f172a;
+    --panel:rgba(30,41,59,.75);
+    --border:rgba(255,255,255,.08);
+    --text:#f8fafc;
+    --muted:#94a3b8;
+    --blue:#38bdf8;
+    --green:#10b981;
+    --orange:#f59e0b;
+    --purple:#8b5cf6;
+}
 
-        /* --- SIDEBAR --- */
-        .sidebar {
-            width: 260px;
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(16px);
-            border-right: 1px solid var(--glass-border);
-            padding: 2rem;
-            display: flex;
-            flex-direction: column;
-        }
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',sans-serif;
+}
 
-        .logo { font-size: 1.5rem; font-weight: 700; margin-bottom: 3rem; display: flex; align-items: center; gap: 10px; color: var(--text-main); }
-        .logo i { color: var(--color-o2); font-size: 1.8rem; }
+body{
+    background:radial-gradient(circle at top right,#1e293b,var(--bg));
+    color:var(--text);
+    display:flex;
+    min-height:100vh;
+}
 
-        .nav-menu { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; flex: 1; }
-        .nav-item { padding: 1rem; border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 15px; color: var(--text-muted); transition: all 0.3s; text-decoration: none;}
-        .nav-item:hover, .nav-item.active { background: rgba(255, 255, 255, 0.05); color: var(--text-main); }
-        .nav-item.active { border-left: 4px solid var(--color-o2); background: linear-gradient(90deg, rgba(14, 165, 233, 0.1) 0%, transparent 100%); }
+.sidebar{
+    width:260px;
+    background:rgba(15,23,42,.65);
+    backdrop-filter:blur(18px);
+    border-right:1px solid var(--border);
+    padding:2rem;
+    position:fixed;
+    height:100vh;
+}
 
-        /* --- MAIN CONTENT --- */
-        .main-content { flex: 1; padding: 2rem 3rem; display: flex; flex-direction: column; gap: 2rem; height: 100vh; overflow-y: auto;}
+.logo{
+    font-size:1.6rem;
+    font-weight:700;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:3rem;
+}
 
-        /* HEADER */
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
-        .header-title h1 { font-size: 1.8rem; font-weight: 600; }
-        .header-title p { color: var(--text-muted); font-size: 0.9rem; margin-top: 5px; }
-        
-        /* PANELS & GRID */
-        .glass-panel { background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 20px; padding: 2rem; box-shadow: var(--accent-glow); }
-        .panel-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px; color: var(--text-main); border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 15px;}
-        
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+.logo i{
+    color:var(--blue);
+}
 
-        /* TEXT STYLES */
-        p { color: var(--text-muted); line-height: 1.6; font-size: 0.95rem; margin-bottom: 1rem; }
-        strong { color: var(--text-main); }
+.nav-menu{
+    list-style:none;
+}
 
-        /* TEAM LIST */
-        .team-list { display: flex; flex-direction: column; gap: 1rem; }
-        .team-member { background: rgba(0,0,0,0.2); padding: 1rem 1.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.03); display: flex; justify-content: space-between; align-items: center;}
-        .team-name { font-size: 1rem; font-weight: 600; color: var(--text-main); }
-        .team-role { font-size: 0.85rem; padding: 4px 10px; border-radius: 20px; font-weight: 600; }
-        .role-cse { background: rgba(14, 165, 233, 0.1); color: var(--color-o2); border: 1px solid rgba(14, 165, 233, 0.2); }
-        .role-md { background: rgba(16, 185, 129, 0.1); color: var(--color-bqi); border: 1px solid rgba(16, 185, 129, 0.2); }
+.nav-menu a{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:1rem;
+    margin-bottom:.5rem;
+    border-radius:12px;
+    text-decoration:none;
+    color:var(--muted);
+    transition:.3s;
+}
 
-        /* ARCHITECTURE MAP */
-        .arch-map { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; padding: 1rem 0; position: relative;}
-        .arch-node { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 16px; width: 30%; text-align: center; z-index: 2;}
-        .arch-icon { font-size: 2.5rem; margin-bottom: 15px; }
-        .arch-title { font-weight: 600; font-size: 1.1rem; margin-bottom: 5px;}
-        .arch-desc { font-size: 0.8rem; color: var(--text-muted); }
-        
-        .arch-line { position: absolute; top: 50%; left: 10%; right: 10%; height: 2px; background: linear-gradient(90deg, var(--color-hardware), var(--color-backend), var(--color-o2)); z-index: 1; opacity: 0.5;}
-        .arch-arrows { position: absolute; width: 100%; display: flex; justify-content: space-around; top: 46%; z-index: 1;}
-        .arch-arrows i { color: var(--text-muted); font-size: 1.2rem; opacity: 0.5;}
+.nav-menu a:hover,
+.nav-menu a.active{
+    background:rgba(255,255,255,.05);
+    color:white;
+}
 
-        /* TECH STACK LISTS */
-        .tech-ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
-        .tech-ul li { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: var(--text-muted); }
-        .tech-ul i { font-size: 1.1rem; width: 20px; text-align: center; }
+.main{
+    margin-left:260px;
+    width:calc(100% - 260px);
+    padding:2rem;
+}
 
-    </style>
+.hero{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:24px;
+    padding:3rem;
+    margin-bottom:2rem;
+    backdrop-filter:blur(18px);
+}
+
+.hero h1{
+    font-size:2.4rem;
+    margin-bottom:1rem;
+}
+
+.hero p{
+    color:var(--muted);
+    line-height:1.7;
+    max-width:900px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+    gap:1.5rem;
+}
+
+.card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:1.8rem;
+    backdrop-filter:blur(18px);
+}
+
+.card h2{
+    font-size:1.2rem;
+    margin-bottom:1rem;
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.card p{
+    color:var(--muted);
+    line-height:1.7;
+}
+
+.section{
+    margin-top:2rem;
+}
+
+.section-title{
+    font-size:1.6rem;
+    margin-bottom:1.2rem;
+}
+
+.sensor-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    gap:1.5rem;
+}
+
+.sensor{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:1.5rem;
+}
+
+.sensor-icon{
+    font-size:2rem;
+    margin-bottom:1rem;
+}
+
+.sensor h3{
+    margin-bottom:.7rem;
+}
+
+.sensor p{
+    color:var(--muted);
+    line-height:1.6;
+}
+
+.sensor ul{
+    margin-top:1rem;
+    padding-left:1.2rem;
+    color:var(--muted);
+}
+
+.architecture{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:2rem;
+}
+
+.flow{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    align-items:center;
+    gap:1rem;
+    margin-top:1rem;
+}
+
+.node{
+    background:rgba(0,0,0,.2);
+    border:1px solid rgba(255,255,255,.05);
+    padding:1.2rem;
+    border-radius:16px;
+    min-width:180px;
+    text-align:center;
+}
+
+.arrow{
+    font-size:1.5rem;
+    color:var(--blue);
+}
+
+.table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+.table th,
+.table td{
+    border:1px solid rgba(255,255,255,.08);
+    padding:12px;
+    text-align:left;
+}
+
+.table th{
+    background:rgba(255,255,255,.05);
+}
+
+.team{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:1rem;
+}
+
+.member{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:1.5rem;
+    text-align:center;
+}
+
+.member h3{
+    margin-bottom:.4rem;
+}
+
+.member p{
+    color:var(--muted);
+}
+
+.objectives{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:1rem;
+}
+
+.obj{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:1.5rem;
+}
+
+.obj i{
+    color:var(--blue);
+    font-size:1.5rem;
+    margin-bottom:1rem;
+}
+
+@media(max-width:900px){
+
+    .sidebar{
+        display:none;
+    }
+
+    .main{
+        margin-left:0;
+        width:100%;
+    }
+
+    .flow{
+        flex-direction:column;
+    }
+
+    .arrow{
+        transform:rotate(90deg);
+    }
+}
+</style>
 </head>
+
 <body>
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-        <div class="logo"><i class="fa-solid fa-lungs"></i> BreathIQ</div>
-        <ul class="nav-menu">
-            <a href="/" class="nav-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
-            <a href="live" class="nav-item"><i class="fa-solid fa-wave-square"></i> Live Readings</a>
-            <a href="history" class="nav-item"><i class="fa-solid fa-clock-rotate-left"></i> History & Reports</a>
-            <!-- Active state moved to About -->
-            <a href="about" class="nav-item active"><i class="fa-solid fa-circle-info"></i> About</a>
-        </ul>
-    </aside>
+<aside class="sidebar">
+    <div class="logo">
+        <i class="fa-solid fa-lungs"></i>
+        BreathIQ
+    </div>
 
-    <!-- MAIN CONTENT -->
-    <main class="main-content">
-        
-        <header class="header">
-            <div class="header-title">
-                <h1>System Information</h1>
-                <p>Project documentation, team credits, and technical architecture.</p>
+    <ul class="nav-menu">
+        <li><a href="/"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+        <li><a href="live"><i class="fa-solid fa-wave-square"></i> Live Readings</a></li>
+        <li><a href="history"><i class="fa-solid fa-clock-rotate-left"></i> History</a></li>
+        <li><a href="about" class="active"><i class="fa-solid fa-circle-info"></i> About</a></li>
+    </ul>
+</aside>
+
+<main class="main">
+
+    <section class="hero">
+        <h1>BreathIQ Environmental Intelligence Platform</h1>
+
+        <p>
+            BreathIQ is an IoT-based environmental monitoring and health analytics platform
+            developed to continuously assess air quality, environmental comfort, and
+            physiological response in real time. The system combines multiple environmental
+            sensors with cloud analytics to generate an intelligent Breath Quality Index (BQI)
+            and Air Quality Index (AQI). Live sensor data is transmitted every 5 seconds,
+            processed by a Node.js backend, analyzed using custom algorithms, and stored as
+            one-minute averaged records inside MongoDB Atlas for long-term analytics.
+        </p>
+    </section>
+
+    <section class="section">
+        <h2 class="section-title">Project Overview</h2>
+
+        <div class="grid">
+
+            <div class="card">
+                <h2><i class="fa-solid fa-cloud"></i> Environmental Monitoring</h2>
+                <p>
+                    BreathIQ continuously monitors indoor environmental conditions using
+                    gas sensing, dust sensing, temperature sensing, and humidity sensing
+                    technologies. The platform identifies pollution trends and assists
+                    in maintaining healthier indoor environments.
+                </p>
             </div>
-        </header>
 
-        <!-- PROJECT OVERVIEW -->
-        <div class="glass-panel">
-            <h2 class="panel-title"><i class="fa-solid fa-book-medical"></i> Project Overview</h2>
-            <p><strong>BreathIQ</strong> is a comprehensive, multi-disciplinary IoT environmental and respiratory monitoring system. It was developed to bridge the gap between complex hardware sensor networks and modern, accessible medical data visualization.</p>
-            <p>The system actively measures Carbon Dioxide (CO2), Volatile Organic Compounds (VOCs), Oxygen (O2), Temperature, and Humidity. By applying a custom algorithm to these isolated metrics, the system calculates a real-time <strong>Breath Quality Index (BQI)</strong>, providing instant risk assessments and health recommendations.</p>
+            <div class="card">
+                <h2><i class="fa-solid fa-heart-pulse"></i> Health Monitoring</h2>
+                <p>
+                    Physiological measurements such as blood oxygen saturation (SpO₂)
+                    and heart rate are integrated into the system to evaluate the
+                    potential impact of environmental conditions on human wellbeing.
+                </p>
+            </div>
+
+            <div class="card">
+                <h2><i class="fa-solid fa-chart-column"></i> Analytics Engine</h2>
+                <p>
+                    A dedicated backend processes incoming sensor data, calculates AQI,
+                    generates Breath Quality Index scores, classifies risk levels,
+                    and prepares data for dashboard visualization and historical analysis.
+                </p>
+            </div>
+
         </div>
+    </section>
 
-        <div class="grid-2">
-            <!-- THE TEAM -->
-            <div class="glass-panel">
-                <h2 class="panel-title"><i class="fa-solid fa-users-gear"></i> Development Team</h2>
-                <p>This project is the result of a cross-disciplinary collaboration between the Computer Science & Engineering (CSE) and Medical Electronics (MD) departments.</p>
-                
-                <div class="team-list">
-                    <!-- Update these placeholders with your actual group members' names! -->
-                    <div class="team-member">
-                        <div class="team-name"></div>
-                        <div class="team-role role-cse">CSE / Full-Stack</div>
-                    </div>
-                    <div class="team-member">
-                        <div class="team-name">Student 2 Name</div>
-                        <div class="team-role role-cse">CSE / Backend</div>
-                    </div>
-                    <div class="team-member">
-                        <div class="team-name">Student 3 Name</div>
-                        <div class="team-role role-md">Med Electronics / Hardware</div>
-                    </div>
-                    <div class="team-member">
-                        <div class="team-name">Student 4 Name</div>
-                        <div class="team-role role-md">Med Electronics / Sensors</div>
-                    </div>
+    <section class="section">
+        <h2 class="section-title">Sensor Suite</h2>
+
+        <div class="sensor-grid">
+
+            <div class="sensor">
+                <div class="sensor-icon" style="color:#f59e0b;">
+                    <i class="fa-solid fa-smog"></i>
                 </div>
+                <h3>MQ135 Gas Sensor</h3>
+                <p>
+                    The MQ135 sensor is responsible for detecting air contaminants and
+                    harmful gases present in indoor environments.
+                </p>
+
+                <ul>
+                    <li>Smoke Detection</li>
+                    <li>Ammonia Detection</li>
+                    <li>Benzene Detection</li>
+                    <li>VOC Monitoring</li>
+                    <li>General Air Pollution Analysis</li>
+                </ul>
             </div>
 
-            <!-- TECH STACK -->
-            <div class="glass-panel">
-                <h2 class="panel-title"><i class="fa-solid fa-microchip"></i> Technology Stack</h2>
-                <div style="display: flex; justify-content: space-between; gap: 20px;">
-                    
-                    <div style="flex: 1;">
-                        <h3 style="font-size: 0.85rem; color: var(--text-main); margin-bottom: 10px; text-transform: uppercase;">Hardware Layer</h3>
-                        <ul class="tech-ul">
-                            <li><i class="fa-brands fa-usb" style="color:var(--color-hardware)"></i> ESP32 Microcontroller</li>
-                            <li><i class="fa-solid fa-cloud" style="color:var(--text-muted)"></i> MQ-135 Gas Sensor</li>
-                            <li><i class="fa-solid fa-wind" style="color:var(--text-muted)"></i> Oxygen (O2) Sensor</li>
-                            <li><i class="fa-solid fa-temperature-half" style="color:var(--text-muted)"></i> DHT11 Sensor</li>
-                        </ul>
-                    </div>
-
-                    <div style="flex: 1;">
-                        <h3 style="font-size: 0.85rem; color: var(--text-main); margin-bottom: 10px; text-transform: uppercase;">Software Layer</h3>
-                        <ul class="tech-ul">
-                            <li><i class="fa-brands fa-node-js" style="color:var(--color-bqi)"></i> Node.js & Express</li>
-                            <li><i class="fa-solid fa-server" style="color:var(--color-backend)"></i> Render API Hosting</li>
-                            <li><i class="fa-brands fa-html5" style="color:var(--color-o2)"></i> HTML5 / CSS3 / JS</li>
-                            <li><i class="fa-brands fa-github" style="color:var(--text-muted)"></i> GitHub Pages</li>
-                        </ul>
-                    </div>
-
+            <div class="sensor">
+                <div class="sensor-icon" style="color:#38bdf8;">
+                    <i class="fa-solid fa-wind"></i>
                 </div>
+                <h3>GP2Y10 Dust Sensor</h3>
+                <p>
+                    The GP2Y10 optical dust sensor measures airborne particulate matter
+                    and suspended particles.
+                </p>
+
+                <ul>
+                    <li>Dust Concentration Measurement</li>
+                    <li>Particulate Matter Detection</li>
+                    <li>AQI Calculation Input</li>
+                    <li>Indoor Pollution Monitoring</li>
+                </ul>
             </div>
+
+            <div class="sensor">
+                <div class="sensor-icon" style="color:#10b981;">
+                    <i class="fa-solid fa-temperature-half"></i>
+                </div>
+                <h3>DHT11 Sensor</h3>
+                <p>
+                    The DHT11 provides temperature and humidity measurements which are
+                    used to evaluate environmental comfort.
+                </p>
+
+                <ul>
+                    <li>Temperature Monitoring</li>
+                    <li>Humidity Monitoring</li>
+                    <li>Comfort Analysis</li>
+                    <li>BQI Contribution</li>
+                </ul>
+            </div>
+
+            <div class="sensor">
+                <div class="sensor-icon" style="color:#ef4444;">
+                    <i class="fa-solid fa-heart-pulse"></i>
+                </div>
+                <h3>MAX30102 Pulse Oximeter</h3>
+                <p>
+                    The MAX30102 measures heart rate and blood oxygen saturation levels
+                    to evaluate physiological responses.
+                </p>
+
+                <ul>
+                    <li>Heart Rate Monitoring</li>
+                    <li>SpO₂ Measurement</li>
+                    <li>Health Assessment</li>
+                    <li>BQI Contribution</li>
+                </ul>
+            </div>
+
         </div>
+    </section>
 
-        <!-- ARCHITECTURE DIAGRAM -->
-        <div class="glass-panel" style="margin-bottom: 2rem;">
-            <h2 class="panel-title"><i class="fa-solid fa-network-wired"></i> System Architecture</h2>
-            
-            <div class="arch-map">
-                <div class="arch-line"></div>
-                <div class="arch-arrows">
-                    <i class="fa-solid fa-chevron-right"></i>
-                    <i class="fa-solid fa-chevron-right"></i>
+    <section class="section">
+        <h2 class="section-title">System Architecture</h2>
+
+        <div class="architecture">
+
+            <div class="flow">
+
+                <div class="node">
+                    Sensors
                 </div>
 
-                <div class="arch-node">
-                    <i class="fa-solid fa-circuit-board arch-icon" style="color: var(--color-hardware)"></i>
-                    <div class="arch-title">Physical Sensors</div>
-                    <div class="arch-desc">ESP32 polls medical & environmental sensors and packages data into JSON payloads.</div>
+                <div class="arrow">
+                    <i class="fa-solid fa-arrow-right"></i>
                 </div>
 
-                <div class="arch-node">
-                    <i class="fa-solid fa-server arch-icon" style="color: var(--color-backend)"></i>
-                    <div class="arch-title">Cloud Backend API</div>
-                    <div class="arch-desc">Node.js server processes incoming data, calculates BQI, and stores it in the time-series log.</div>
+                <div class="node">
+                    ESP32-C6
                 </div>
 
-                <div class="arch-node">
-                    <i class="fa-solid fa-display arch-icon" style="color: var(--color-o2)"></i>
-                    <div class="arch-title">Web Client</div>
-                    <div class="arch-desc">Browser pulls data via REST API to render dynamic charts and real-time alerts.</div>
+                <div class="arrow">
+                    <i class="fa-solid fa-arrow-right"></i>
                 </div>
+
+                <div class="node">
+                    Node.js API
+                </div>
+
+                <div class="arrow">
+                    <i class="fa-solid fa-arrow-right"></i>
+                </div>
+
+                <div class="node">
+                    AQI / BQI Engine
+                </div>
+
+                <div class="arrow">
+                    <i class="fa-solid fa-arrow-right"></i>
+                </div>
+
+                <div class="node">
+                    MongoDB Atlas
+                </div>
+
+                <div class="arrow">
+                    <i class="fa-solid fa-arrow-right"></i>
+                </div>
+
+                <div class="node">
+                    Web Dashboard
+                </div>
+
             </div>
-        </div>
 
-    </main>
+        </div>
+    </section>
+
+    <section class="section">
+        <h2 class="section-title">AQI Classification</h2>
+
+        <div class="card">
+
+            <table class="table">
+                <tr>
+                    <th>AQI Range</th>
+                    <th>Category</th>
+                    <th>Health Impact</th>
+                </tr>
+
+                <tr>
+                    <td>0 – 50</td>
+                    <td>Good</td>
+                    <td>Minimal Impact</td>
+                </tr>
+
+                <tr>
+                    <td>51 – 100</td>
+                    <td>Satisfactory</td>
+                    <td>Minor Discomfort</td>
+                </tr>
+
+                <tr>
+                    <td>101 – 200</td>
+                    <td>Moderate</td>
+                    <td>Sensitive Individuals Affected</td>
+                </tr>
+
+                <tr>
+                    <td>201 – 300</td>
+                    <td>Poor</td>
+                    <td>Respiratory Discomfort</td>
+                </tr>
+
+                <tr>
+                    <td>301 – 400</td>
+                    <td>Very Poor</td>
+                    <td>Respiratory Illness Risk</td>
+                </tr>
+
+                <tr>
+                    <td>401 – 500</td>
+                    <td>Severe</td>
+                    <td>Serious Health Impact</td>
+                </tr>
+            </table>
+
+        </div>
+    </section>
+
+    <section class="section">
+        <h2 class="section-title">Breath Quality Index (BQI)</h2>
+
+        <div class="card">
+
+            <p>
+                BreathIQ generates a proprietary Breath Quality Index (BQI) by combining
+                multiple environmental and physiological factors.
+            </p>
+
+            <br>
+
+            <table class="table">
+                <tr>
+                    <th>Parameter</th>
+                    <th>Weight</th>
+                </tr>
+
+                <tr>
+                    <td>Air Quality Index (AQI)</td>
+                    <td>50%</td>
+                </tr>
+
+                <tr>
+                    <td>MQ135 Gas Pollution Score</td>
+                    <td>25%</td>
+                </tr>
+
+                <tr>
+                    <td>Humidity Score</td>
+                    <td>10%</td>
+                </tr>
+
+                <tr>
+                    <td>Temperature Score</td>
+                    <td>10%</td>
+                </tr>
+
+                <tr>
+                    <td>SpO₂ Score</td>
+                    <td>5%</td>
+                </tr>
+            </table>
+
+        </div>
+    </section>
+
+    <section class="section">
+        <h2 class="section-title">Live Data & Historical Storage</h2>
+
+        <div class="grid">
+
+            <div class="card">
+                <h2><i class="fa-solid fa-bolt"></i> Live Monitoring</h2>
+                <p>
+                    Sensor readings are transmitted from the ESP32 to the backend
+                    every 5 seconds. The dashboard immediately reflects the latest
+                    environmental conditions.
+                </p>
+            </div>
+
+            <div class="card">
+                <h2><i class="fa-solid fa-database"></i> Historical Database</h2>
+                <p>
+                    To reduce database load, the backend collects multiple readings
+                    for one minute, computes averaged values, and stores a single
+                    optimized record in MongoDB Atlas.
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="section">
+        <h2 class="section-title">Technology Stack</h2>
+
+        <div class="grid">
+
+            <div class="card">
+                <h2><i class="fa-solid fa-microchip"></i> Hardware</h2>
+
+                <p>
+                    ESP32-C6<br>
+                    MQ135 Gas Sensor<br>
+                    GP2Y10 Dust Sensor<br>
+                    DHT11 Sensor<br>
+                    MAX30102 Pulse Oximeter
+                </p>
+            </div>
+
+            <div class="card">
+                <h2><i class="fa-solid fa-code"></i> Software</h2>
+
+                <p>
+                    Node.js<br>
+                    Express.js<br>
+                    MongoDB Atlas<br>
+                    Render Cloud Hosting<br>
+                    HTML5 / CSS3 / JavaScript
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="section">
+        <h2 class="section-title">Project Objectives</h2>
+
+        <div class="objectives">
+
+            <div class="obj">
+                <i class="fa-solid fa-earth-americas"></i>
+                <h3>Environmental Awareness</h3>
+            </div>
+
+            <div class="obj">
+                <i class="fa-solid fa-lungs"></i>
+                <h3>Respiratory Health Monitoring</h3>
+            </div>
+
+            <div class="obj">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <h3>Cloud Based Analytics</h3>
+            </div>
+
+            <div class="obj">
+                <i class="fa-solid fa-chart-line"></i>
+                <h3>Data Driven Decision Making</h3>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="section">
+        <h2 class="section-title">Development Team</h2>
+
+        <div class="team">
+
+            <div class="member">
+                <h3>Team Member 1</h3>
+                <p>Full Stack Development</p>
+            </div>
+
+            <div class="member">
+                <h3>Team Member 2</h3>
+                <p>Backend Development</p>
+            </div>
+
+            <div class="member">
+                <h3>Team Member 3</h3>
+                <p>Hardware Integration</p>
+            </div>
+
+            <div class="member">
+                <h3>Team Member 4</h3>
+                <p>Sensor Engineering</p>
+            </div>
+
+        </div>
+    </section>
+
+</main>
 
 </body>
 </html>
