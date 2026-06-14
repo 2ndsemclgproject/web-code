@@ -1,371 +1,340 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BreathIQ | History & Reports</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <style>
-        /* --- NEO-GLASSMORPHISM THEME --- */
-        :root {
-            --bg-color: #0f172a;
-            --glass-bg: rgba(30, 41, 59, 0.7);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --accent-glow: 0 0 20px rgba(56, 189, 248, 0.15);
-            
-            --color-excellent: #10b981;
-            --color-good: #0ea5e9;
-            --color-moderate: #f59e0b;
-            --color-poor: #f43f5e;
-            --color-o2: #0ea5e9;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BreathIQ | History & Reports</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+/* --- NEO-GLASSMORPHISM THEME --- */
+:root {
+  --bg-color: #0f172a;
+  --glass-bg: rgba(30, 41, 59, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --accent-glow: 0 0 20px rgba(56, 189, 248, 0.15);
+  --color-excellent: #10b981;
+  --color-good: #0ea5e9;
+  --color-moderate: #f59e0b;
+  --color-poor: #f43f5e;
+  --color-o2: #0ea5e9;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+body {
+  background: radial-gradient(circle at top right, #1e293b, var(--bg-color));
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  overflow-x: hidden;
+}
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+/* --- SIDEBAR --- */
+.sidebar {
+  width: 260px;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(16px);
+  border-right: 1px solid var(--glass-border);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+}
+.logo { font-size: 1.5rem; font-weight: 700; margin-bottom: 3rem; display: flex; align-items: center; gap: 10px; color: var(--text-main); }
+.logo i { color: var(--color-o2); font-size: 1.8rem; }
+.nav-menu { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; flex: 1; }
+.nav-item { padding: 1rem; border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 15px; color: var(--text-muted); transition: all 0.3s; text-decoration: none;}
+.nav-item:hover, .nav-item.active { background: rgba(255, 255, 255, 0.05); color: var(--text-main); }
+.nav-item.active { border-left: 4px solid var(--color-o2); background: linear-gradient(90deg, rgba(14, 165, 233, 0.1) 0%, transparent 100%); }
 
-        body {
-            background: radial-gradient(circle at top right, #1e293b, var(--bg-color));
-            color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            overflow-x: hidden;
-        }
+/* --- MAIN CONTENT --- */
+.main-content { flex: 1; padding: 2rem 3rem; display: flex; flex-direction: column; gap: 1.5rem; height: 100vh; overflow-y: auto;}
 
-        /* --- SIDEBAR --- */
-        .sidebar {
-            width: 260px;
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(16px);
-            border-right: 1px solid var(--glass-border);
-            padding: 2rem;
-            display: flex;
-            flex-direction: column;
-        }
+/* HEADER & EXPORT BUTTON */
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+.header-title h1 { font-size: 1.8rem; font-weight: 600; }
+.header-title p { color: var(--text-muted); font-size: 0.9rem; margin-top: 5px; }
+.header-actions { display: flex; align-items: center; gap: 15px; }
+.export-btn {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--color-excellent);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s;
+}
+.export-btn:hover {
+  background: rgba(16, 185, 129, 0.2);
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+  transform: translateY(-2px);
+}
 
-        .logo { font-size: 1.5rem; font-weight: 700; margin-bottom: 3rem; display: flex; align-items: center; gap: 10px; color: var(--text-main); }
-        .logo i { color: var(--color-o2); font-size: 1.8rem; }
+/* --- DATA TABLE --- */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: var(--accent-glow);
+  display: flex;
+  flex-direction: column;
+  flex: 1; /* Takes remaining height */
+  overflow: hidden;
+}
+.table-container {
+  width: 100%;
+  overflow-y: auto;
+  margin-top: 10px;
+  padding-right: 10px;
+}
+/* Custom Scrollbar for table */
+.table-container::-webkit-scrollbar { width: 8px; }
+.table-container::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 4px; }
+.table-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
 
-        .nav-menu { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; flex: 1; }
-        .nav-item { padding: 1rem; border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 15px; color: var(--text-muted); transition: all 0.3s; text-decoration: none;}
-        .nav-item:hover, .nav-item.active { background: rgba(255, 255, 255, 0.05); color: var(--text-main); }
-        .nav-item.active { border-left: 4px solid var(--color-o2); background: linear-gradient(90deg, rgba(14, 165, 233, 0.1) 0%, transparent 100%); }
+table { width: 100%; border-collapse: collapse; text-align: left; }
+th {
+  padding: 15px;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  position: sticky;
+  top: 0;
+  background: rgba(30, 41, 59, 0.95); /* Matches glass-bg but solid for sticky header */
+  backdrop-filter: blur(10px);
+  z-index: 10;
+  border-bottom: 1px solid var(--glass-border);
+}
+td {
+  padding: 15px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  color: var(--text-main);
+  font-size: 0.95rem;
+}
+tr:hover td { background: rgba(255,255,255,0.02); }
 
-        /* --- MAIN CONTENT --- */
-        .main-content { flex: 1; padding: 2rem 3rem; display: flex; flex-direction: column; gap: 1.5rem; height: 100vh; overflow-y: hidden;}
-
-        /* HEADER & EXPORT BUTTON */
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-        .header-title h1 { font-size: 1.8rem; font-weight: 600; }
-        .header-title p { color: var(--text-muted); font-size: 0.9rem; margin-top: 5px; }
-        
-        .header-actions { display: flex; align-items: center; gap: 15px; }
-        
-        .export-btn { 
-            background: rgba(16, 185, 129, 0.1); 
-            color: var(--color-excellent); 
-            border: 1px solid rgba(16, 185, 129, 0.3); 
-            padding: 10px 20px; 
-            border-radius: 8px; 
-            font-size: 0.9rem; 
-            font-weight: 600; 
-            cursor: pointer; 
-            display: flex; 
-            align-items: center; 
-            gap: 10px;
-            transition: all 0.3s;
-        }
-        .export-btn:hover {
-            background: rgba(16, 185, 129, 0.2);
-            box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
-            transform: translateY(-2px);
-        }
-
-        /* --- DATA TABLE --- */
-        .glass-panel { 
-            background: var(--glass-bg); 
-            backdrop-filter: blur(20px); 
-            border: 1px solid var(--glass-border); 
-            border-radius: 20px; 
-            padding: 1.5rem; 
-            box-shadow: var(--accent-glow); 
-            display: flex; 
-            flex-direction: column;
-            flex: 1; /* Takes remaining height */
-            overflow: hidden;
-        }
-
-        .table-container {
-            width: 100%;
-            overflow-y: auto;
-            margin-top: 10px;
-            padding-right: 10px;
-        }
-        
-        /* Custom Scrollbar for table */
-        .table-container::-webkit-scrollbar { width: 8px; }
-        .table-container::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 4px; }
-        .table-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
-
-        table { width: 100%; border-collapse: collapse; text-align: left; }
-        th { 
-            padding: 15px; 
-            color: var(--text-muted); 
-            font-weight: 600; 
-            font-size: 0.85rem; 
-            text-transform: uppercase; 
-            letter-spacing: 1px;
-            position: sticky;
-            top: 0;
-            background: rgba(30, 41, 59, 0.95); /* Matches glass-bg but solid for sticky header */
-            backdrop-filter: blur(10px);
-            z-index: 10;
-            border-bottom: 1px solid var(--glass-border);
-        }
-        td { 
-            padding: 15px; 
-            border-bottom: 1px solid rgba(255,255,255,0.03); 
-            color: var(--text-main);
-            font-size: 0.95rem;
-        }
-        tr:hover td { background: rgba(255,255,255,0.02); }
-
-        .bqi-badge { 
-            padding: 4px 10px; 
-            border-radius: 6px; 
-            font-weight: 700; 
-            font-size: 0.8rem;
-            text-align: center;
-            display: inline-block;
-            min-width: 50px;
-        }
-
-    </style>
+.bqi-badge {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-align: center;
+  display: inline-block;
+  min-width: 50px;
+}
+</style>
 </head>
 <body>
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo"><i class="fa-solid fa-lungs"></i> BreathIQ</div>
+  <ul class="nav-menu">
+    <a href="/" class="nav-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+    <a href="live" class="nav-item"><i class="fa-solid fa-wave-square"></i> Live Readings</a>
+    <!-- Active state moved to History. "Reports" is removed as requested! -->
+    <a href="history" class="nav-item active"><i class="fa-solid fa-clock-rotate-left"></i> History &amp; Reports</a>
+    <a href="about" class="nav-item"><i class="fa-solid fa-circle-info"></i> About</a>
+  </ul>
+</aside>
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-        <div class="logo"><i class="fa-solid fa-lungs"></i> BreathIQ</div>
-        <ul class="nav-menu">
-            <a href="/" class="nav-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
-            <a href="live" class="nav-item"><i class="fa-solid fa-wave-square"></i> Live Readings</a>
-            <!-- Active state moved to History. "Reports" is removed as requested! -->
-            <a href="history" class="nav-item active"><i class="fa-solid fa-clock-rotate-left"></i> History & Reports</a>
-            <a href="about" class="nav-item"><i class="fa-solid fa-circle-info"></i> About</a>
-        </ul>
-    </aside>
+<!-- MAIN CONTENT -->
+<main class="main-content">
+  <header class="header">
+    <div class="header-title">
+      <h1>Historical Log</h1>
+      <p>24-Hour session data for BQI and isolated sensors.</p>
+    </div>
+    <div class="header-actions">
+      <!-- EXPORT BUTTON -->
+      <button class="export-btn" onclick="exportToExcel()">
+        <i class="fa-solid fa-file-excel"></i> Export to Excel (.csv)
+      </button>
+    </div>
+  </header>
 
-    <!-- MAIN CONTENT -->
-    <main class="main-content">
-        
-        <header class="header">
-            <div class="header-title">
-                <h1>Historical Log</h1>
-                <p>24-Hour session data for BQI and isolated sensors.</p>
-            </div>
-            <div class="header-actions">
-                <!-- EXPORT BUTTON -->
-                <button class="export-btn" onclick="exportToExcel()">
-                    <i class="fa-solid fa-file-excel"></i> Export to Excel (.csv)
-                </button>
-            </div>
-        </header>
-
-        <!-- TABLE PANEL -->
-        <div class="glass-panel">
-            <div class="table-container">
-                <table id="historyTable">
-                    <thead>
-                        <tr>
-                            <th>Timestamp</th>
-                            <th>BQI Score</th>
-                            <th>Status</th>
-                            <th>CO2 (ppm)</th>
-                            <th>VOC (ppm)</th>
-                            <th>O2 (%)</th>
-                            <th>Temp (°C)</th>
-                        </tr>
-                    </thead>
-                    <tbody id="table-body">
-                        <!-- Populated by JavaScript -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-    </main>
+  <!-- TABLE PANEL -->
+  <div class="glass-panel">
+    <div class="table-container">
+      <table id="historyTable">
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>BQI Score</th>
+            <th>Status</th>
+            <th>CO2 (ppm)</th>
+            <th>VOC (ppm)</th>
+            <th>O2 (%)</th>
+            <th>Temp (°C)</th>
+            <th>Humidity (%)</th>
+          </tr>
+        </thead>
+        <tbody id="table-body">
+          <!-- Populated by JavaScript -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
 
 <script>
+// CHANGE ONLY THIS URL IF DEPLOYED
+const HISTORY_API_URL = 'https://api.breathiq.qzz.io/api/history';
 
-    // CHANGE ONLY THIS URL IF DEPLOYED
-    const HISTORY_API_URL = 'https://api.breathiq.qzz.io/api/history';
+// Global array used for Excel Export
+let globalData = [];
 
-    // Global array used for Excel Export
-    let globalData = [];
+// --- LOAD HISTORY TABLE ---
+async function loadHistoryTable() {
+  try {
+    const response = await fetch(HISTORY_API_URL);
+    const data = await response.json();
 
-    // --- LOAD HISTORY TABLE ---
-    async function loadHistoryTable() {
+    const tbody = document.getElementById('table-body');
+    tbody.innerHTML = '';
+    globalData = [];
 
-        try {
+    data.reverse().forEach(row => {
+      const tr = document.createElement('tr');
 
-            const response = await fetch(HISTORY_API_URL);
+      // Convert timestamp - include the date so rows from different
+      // days are distinguishable, not just the time of day.
+      const localTime = new Date(row.timestamp).toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
 
-            const data = await response.json();
+      // Determine BQI Colors
+      let badgeColor = '';
+      let statusText = '';
 
-            const tbody = document.getElementById('table-body');
+      if (row.bqi <= 50) {
+        badgeColor = 'background: rgba(76, 175, 80, 0.2); color: #4CAF50;';
+        statusText = 'Good';
+      }
+      else if (row.bqi <= 100) {
+        badgeColor = 'background: rgba(139, 195, 74, 0.2); color: #8BC34A;';
+        statusText = 'Satisfactory';
+      }
+      else if (row.bqi <= 200) {
+        badgeColor = 'background: rgba(255, 235, 59, 0.2); color: #FFEB3B;';
+        statusText = 'Moderate';
+      }
+      else if (row.bqi <= 300) {
+        badgeColor = 'background: rgba(255, 152, 0, 0.2); color: #FF9800;';
+        statusText = 'Poor';
+      }
+      else if (row.bqi <= 400) {
+        badgeColor = 'background: rgba(244, 67, 54, 0.2); color: #F44336;';
+        statusText = 'Very Poor';
+      }
+      else {
+        badgeColor = 'background: rgba(139, 0, 0, 0.2); color: #8B0000;';
+        statusText = 'Severe';
+      }
 
-            tbody.innerHTML = '';
+      // USE REAL DATABASE VALUES
+      const co2 = row.co2 ?? '--';
+      const voc = row.voc ?? '--';
+      const oxygen = row.oxygen ?? '--';
+      const temperature = row.temperature ?? '--';
+      const humidity = row.humidity ?? '--';
 
-            globalData = [];
+      // Save full row for export
+      globalData.push({
+        time: localTime,
+        bqi: row.bqi,
+        status: statusText,
+        co2,
+        voc,
+        oxygen,
+        temperature,
+        humidity
+      });
 
-            data.reverse().forEach(row => {
+      // Build table row
+      tr.innerHTML = `
+        <td style="color: var(--text-muted);">
+          <i class="fa-regular fa-clock" style="margin-right:8px;"></i>
+          ${localTime}
+        </td>
+        <td>
+          <div class="bqi-badge" style="${badgeColor}">
+            ${row.bqi}
+          </div>
+        </td>
+        <td style="font-weight:600;">
+          ${statusText}
+        </td>
+        <td>${co2}</td>
+        <td>${voc}</td>
+        <td>${oxygen}</td>
+        <td>${temperature}</td>
+        <td>${humidity}</td>
+      `;
 
-                const tr = document.createElement('tr');
-
-                // Convert timestamp
-                const localTime = new Date(row.timestamp).toLocaleTimeString('en-US', {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-
-                // Determine BQI Colors
-                let badgeColor = '';
-                let statusText = '';
-
-               if (row.bqi <= 50) {
-    badgeColor = 'background: rgba(76, 175, 80, 0.2); color: #4CAF50;';
-    statusText = 'Good';
+      tbody.appendChild(tr);
+    });
+  }
+  catch (error) {
+    console.error("Error fetching history:", error);
+    document.getElementById('table-body').innerHTML = `
+      <tr>
+        <td colspan="8" style="text-align:center;">
+          Failed to load data from uplink.
+        </td>
+      </tr>
+    `;
+  }
 }
-else if (row.bqi <= 100) {
-    badgeColor = 'background: rgba(139, 195, 74, 0.2); color: #8BC34A;';
-    statusText = 'Satisfactory';
+
+// --- EXPORT TO EXCEL (CSV) ENGINE ---
+function exportToExcel() {
+  if (globalData.length === 0) {
+    alert("No data available to export.");
+    return;
+  }
+
+  // CSV Headers
+  let csvContent = "Timestamp,BQI Score,Status,CO2 (ppm),VOC (ppm),Oxygen (%),Temperature (C),Humidity (%)\n";
+
+  // Add rows
+  globalData.forEach(row => {
+    let rowData = `${row.time},${row.bqi},${row.status},${row.co2},${row.voc},${row.oxygen},${row.temperature},${row.humidity}`;
+    csvContent += rowData + "\n";
+  });
+
+  // Create downloadable file
+  const blob = new Blob([csvContent], {
+    type: 'text/csv;charset=utf-8;'
+  });
+
+  const link = document.createElement("a");
+  const url = URL.createObjectURL(blob);
+  link.setAttribute("href", url);
+  link.setAttribute(
+    "download",
+    "BreathIQ_Report_" +
+    new Date().toLocaleDateString('en-GB').replace(/\//g, '-') +
+    ".csv"
+  );
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }
-else if (row.bqi <= 200) {
-    badgeColor = 'background: rgba(255, 235, 59, 0.2); color: #FFEB3B;';
-    statusText = 'Moderate';
-}
-else if (row.bqi <= 300) {
-    badgeColor = 'background: rgba(255, 152, 0, 0.2); color: #FF9800;';
-    statusText = 'Poor';
-}
-else if (row.bqi <= 400) {
-    badgeColor = 'background: rgba(244, 67, 54, 0.2); color: #F44336;';
-    statusText = 'Very Poor';
-}
-else {
-    badgeColor = 'background: rgba(139, 0, 0, 0.2); color: #8B0000;';
-    statusText = 'Severe';
-}
 
-                // USE REAL DATABASE VALUES
-                const co2 = row.co2 ?? '--';
-                const voc = row.voc ?? '--';
-                const oxygen = row.oxygen ?? '--';
-                const temperature = row.temperature ?? '--';
-
-                // Save full row for export
-                globalData.push({
-                    time: localTime,
-                    bqi: row.bqi,
-                    status: statusText,
-                    co2,
-                    voc,
-                    oxygen,
-                    temperature
-                });
-
-                // Build table row
-                tr.innerHTML = `
-                    <td style="color: var(--text-muted);">
-                        <i class="fa-regular fa-clock" style="margin-right:8px;"></i>
-                        ${localTime}
-                    </td>
-
-                    <td>
-                        <div class="bqi-badge" style="${badgeColor}">
-                            ${row.bqi}
-                        </div>
-                    </td>
-
-                    <td style="font-weight:600;">
-                        ${statusText}
-                    </td>
-
-                    <td>${co2}</td>
-                    <td>${voc}</td>
-                    <td>${oxygen}</td>
-                    <td>${temperature}</td>
-                `;
-
-                tbody.appendChild(tr);
-            });
-
-        }
-        catch (error) {
-
-            console.error("Error fetching history:", error);
-
-            document.getElementById('table-body').innerHTML = `
-                <tr>
-                    <td colspan="7" style="text-align:center;">
-                        Failed to load data from uplink.
-                    </td>
-                </tr>
-            `;
-        }
-    }
-
-    // --- EXPORT TO EXCEL (CSV) ENGINE ---
-    function exportToExcel() {
-
-        if (globalData.length === 0) {
-            alert("No data available to export.");
-            return;
-        }
-
-        // CSV Headers
-        let csvContent = "Timestamp,BQI Score,Status,CO2 (ppm),VOC (ppm),Oxygen (%),Temperature (C)\n";
-
-        // Add rows
-        globalData.forEach(row => {
-
-            let rowData = `${row.time},${row.bqi},${row.status},${row.co2},${row.voc},${row.oxygen},${row.temperature}`;
-
-            csvContent += rowData + "\n";
-        });
-
-        // Create downloadable file
-        const blob = new Blob([csvContent], {
-            type: 'text/csv;charset=utf-8;'
-        });
-
-        const link = document.createElement("a");
-
-        const url = URL.createObjectURL(blob);
-
-        link.setAttribute("href", url);
-
-        link.setAttribute(
-            "download",
-            "BreathIQ_Report_" +
-            new Date().toLocaleDateString('en-GB').replace(/\//g, '-') +
-            ".csv"
-        );
-
-        link.style.visibility = 'hidden';
-
-        document.body.appendChild(link);
-
-        link.click();
-
-        document.body.removeChild(link);
-    }
-
-    // Run on page load
-    loadHistoryTable();
-
+// Run on page load
+loadHistoryTable();
 </script>
 </body>
 </html>
