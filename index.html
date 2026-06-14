@@ -511,9 +511,9 @@
                 const data = await response.json();
                 
                 // Update Static Sensors
-                document.getElementById('ui-co2').innerText = data.co2;
-                document.getElementById('ui-o2').innerText = data.oxygen;
-                document.getElementById('ui-voc').innerText = data.voc;
+                document.getElementById('ui-co2').innerText = data.mq135;
+                document.getElementById('ui-o2').innerText = data.spo2;
+                document.getElementById('ui-voc').innerText = data.dust;
                 document.getElementById('ui-temp').innerText = data.temperature;
 
                 // --- ACCORDION DATA UPDATES ---
@@ -540,9 +540,9 @@
                 // Determine Worst Pollutant (For Blueprint Logic)
                 let worstGas = 'none';
                 if (bqi < 81) {
-                    if (data.co2 > 1000) worstGas = 'co2';
-                    else if (data.voc > 1.0) worstGas = 'voc';
-                    else if (data.oxygen < 19.5) worstGas = 'o2';
+                    if (data.mq135 > 1000) worstGas = 'co2';
+                    else if (data.dust > 1.0) worstGas = 'voc';
+                    else if (data.spo2 < 95) worstGas = 'o2';
                 }
 
                 // Apply Medical Thresholds
