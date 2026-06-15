@@ -1,644 +1,678 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BreathIQ | Dashboard</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-/* --- NEO-GLASSMORPHISM THEME --- */
-:root {
-  --bg-color: #0f172a;
-  --glass-bg: rgba(30, 41, 59, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
-  --accent-glow: 0 0 20px rgba(56, 189, 248, 0.15);
-  --color-excellent: #10b981;
-  --color-good: #0ea5e9;
-  --color-moderate: #f59e0b;
-  --color-poor: #f97316;
-  --color-vpoor: #f43f5e;
-  --color-co2: #f43f5e;
-  --color-o2: #0ea5e9;
-  --color-voc: #8b5cf6;
-  --color-temp: #f59e0b;
-}
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
-body {
-  background: radial-gradient(circle at top right, #1e293b, var(--bg-color));
-  color: var(--text-main);
-  min-height: 100vh;
-  display: flex;
-  overflow-x: hidden;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BreathIQ | Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- NEO-GLASSMORPHISM THEME --- */
+        :root {
+            --bg-color: #0f172a;
+            --glass-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-glow: 0 0 20px rgba(56, 189, 248, 0.15);
+            
+            --color-excellent: #10b981;
+            --color-good: #0ea5e9;
+            --color-moderate: #f59e0b;
+            --color-poor: #f97316;
+            --color-vpoor: #f43f5e;
+            
+            --color-co2: #f43f5e;
+            --color-o2: #0ea5e9;
+            --color-voc: #8b5cf6;
+            --color-temp: #f59e0b;
+        }
 
-/* --- SIDEBAR --- */
-.sidebar {
-  width: 260px;
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(16px);
-  border-right: 1px solid var(--glass-border);
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-}
-.logo { font-size: 1.5rem; font-weight: 700; margin-bottom: 3rem; display: flex; align-items: center; gap: 10px; color: var(--text-main); }
-.logo i { color: var(--color-o2); font-size: 1.8rem; }
-.nav-menu { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; flex: 1; }
-.nav-item { padding: 1rem; border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 15px; color: var(--text-muted); transition: all 0.3s; text-decoration: none;}
-.nav-item:hover, .nav-item.active { background: rgba(255, 255, 255, 0.05); color: var(--text-main); }
-.nav-item.active { border-left: 4px solid var(--color-o2); background: linear-gradient(90deg, rgba(14, 165, 233, 0.1) 0%, transparent 100%); }
-.device-status { margin-top: auto; padding: 1.5rem; background: rgba(0,0,0,0.2); border-radius: 16px; border: 1px solid rgba(255,255,255,0.03); }
-.device-status h3 { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 10px; }
-.status-dot { color: var(--color-excellent); font-size: 0.7rem; margin-right: 5px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
 
-/* --- MAIN CONTENT --- */
-.main-content { flex: 1; padding: 2rem 3rem; display: flex; flex-direction: column; gap: 1.5rem; height: 100vh; overflow-y: auto;}
+        body {
+            background: radial-gradient(circle at top right, #1e293b, var(--bg-color));
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            overflow-x: hidden;
+        }
 
-/* HEADER */
-.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
-.header-title h1 { font-size: 1.8rem; font-weight: 600; }
-.header-title p { color: var(--text-muted); font-size: 0.9rem; margin-top: 5px; }
-.connection-badge { color: var(--color-excellent); font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 8px;}
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: 260px;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(16px);
+            border-right: 1px solid var(--glass-border);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+        }
 
-/* --- INTERACTIVE ACCORDION ROW --- */
-.interactive-row {
-  display: flex;
-  gap: 1.5rem;
-  height: 240px;
-  width: 100%;
-}
-.hover-block {
-  background: var(--glass-bg);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--glass-border);
-  border-radius: 20px;
-  padding: 1.5rem;
-  box-shadow: var(--accent-glow);
-  flex: 1 1 0;
-  min-width: 0;
-  transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-  overflow: hidden;
-  position: relative;
-  cursor: default;
-  display: flex;
-  flex-direction: column;
-}
-.hover-block:hover {
-  flex: 2.8;
-  background: rgba(40, 55, 75, 0.8);
-  border-color: rgba(255,255,255,0.15);
-}
-.block-title { font-size: 0.9rem; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; gap: 10px; margin-bottom: 15px; white-space: nowrap;}
+        .logo { font-size: 1.5rem; font-weight: 700; margin-bottom: 3rem; display: flex; align-items: center; gap: 10px; color: var(--text-main); }
+        .logo i { color: var(--color-o2); font-size: 1.8rem; }
 
-/* Fading Logic */
-.default-view { transition: opacity 0.3s; opacity: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center;}
-.hover-block:hover .default-view { opacity: 0; position: absolute; pointer-events: none; }
-.expanded-view { opacity: 0; position: absolute; transition: opacity 0.3s 0.2s; pointer-events: none; width: 100%; height: calc(100% - 50px); top: 50px; left: 0; padding: 0 1.5rem; display: flex; align-items: center; justify-content: center;}
-.hover-block:hover .expanded-view { opacity: 1; pointer-events: auto; position: relative; top: 0; padding: 0;}
+        .nav-menu { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; flex: 1; }
+        .nav-item { padding: 1rem; border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 15px; color: var(--text-muted); transition: all 0.3s; text-decoration: none;}
+        .nav-item:hover, .nav-item.active { background: rgba(255, 255, 255, 0.05); color: var(--text-main); }
+        .nav-item.active { border-left: 4px solid var(--color-o2); background: linear-gradient(90deg, rgba(14, 165, 233, 0.1) 0%, transparent 100%); }
 
-/* default view typography */
-.dv-val { font-size: 3rem; font-weight: 800; line-height: 1; margin: 10px 0;}
-.dv-icon { font-size: 2.5rem; margin-bottom: 10px; color: var(--text-muted);}
-.dv-label { font-size: 1rem; font-weight: 600;}
+        .device-status { margin-top: auto; padding: 1.5rem; background: rgba(0,0,0,0.2); border-radius: 16px; border: 1px solid rgba(255,255,255,0.03); }
+        .device-status h3 { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 10px; }
+        .status-dot { color: var(--color-excellent); font-size: 0.7rem; margin-right: 5px; }
 
-/* --- EXPANDED VIEW 1: BQI GAUGE --- */
-.gauge-container { width: 200px; height: 100px; position: relative; overflow: hidden; margin-bottom: 20px;}
-.gauge-background { width: 200px; height: 200px; border-radius: 50%; position: absolute; top: 0; border: 15px solid rgba(255,255,255,0.05); }
-.gauge-fill { width: 200px; height: 200px; border-radius: 50%; position: absolute; top: 0; border: 15px solid var(--color-excellent); border-bottom-color: transparent; border-right-color: transparent; transform: rotate(-135deg); transition: transform 1s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.5s ease;}
-.gauge-text { position: absolute; bottom: 0; width: 100%; text-align: center;}
-.gauge-score { font-size: 3rem; font-weight: 800; line-height: 1;}
+        /* --- MAIN CONTENT --- */
+        .main-content { flex: 1; padding: 2rem 3rem; display: flex; flex-direction: column; gap: 1.5rem; height: 100vh; overflow-y: auto;}
 
-/* --- EXPANDED VIEW 2: MEDICAL LUNGS --- */
-.lung-container{
-  display:flex;
-  align-items:center;
-  gap:20px;
-  width:100%;
-  margin-top:35px;
-}
-.lung-icon{
-  font-size:4.5rem;
-  color:#f97316;
-  flex-shrink:0;
-}
-.lung-text{
-  flex:1;
-  text-align:left;
-  margin-top:0px;
-}
-.lung-text h3{
-  margin:0 0 8px 0;
-  font-size:1.35rem;
-  font-weight:700;
-  color:#f87171;
-}
-.lung-text p{
-  margin:0 0 1px 0;
-  line-height:1.5;
-}
-.impact-preview{
-  margin-bottom:1px;
-  color:var(--text-muted);
-  font-size:0.82rem;
-  line-height:1.5;
+        /* HEADER */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+        .header-title h1 { font-size: 1.8rem; font-weight: 600; }
+        .header-title p { color: var(--text-muted); font-size: 0.9rem; margin-top: 5px; }
+        .connection-badge { color: var(--color-excellent); font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 8px;}
+
+        /* --- INTERACTIVE ACCORDION ROW --- */
+        .interactive-row {
+            display: flex;
+            gap: 1.5rem;
+            height: 240px; 
+            width: 100%;
+        }
+
+        .hover-block {
+            background: var(--glass-bg); 
+            backdrop-filter: blur(20px); 
+            border: 1px solid var(--glass-border); 
+            border-radius: 20px; 
+            padding: 1.5rem; 
+            box-shadow: var(--accent-glow);
+            flex: 1 1 0;   
+            min-width: 0;  
+            transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+            overflow: hidden;
+            position: relative;
+            cursor: default;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .hover-block:hover {
+            flex: 2.8; 
+            background: rgba(40, 55, 75, 0.8);
+            border-color: rgba(255,255,255,0.15);
+        }
+
+        .block-title { font-size: 0.9rem; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; gap: 10px; margin-bottom: 15px; white-space: nowrap;}
+
+        /* Fading Logic */
+        .default-view { transition: opacity 0.3s; opacity: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center;}
+        .hover-block:hover .default-view { opacity: 0; position: absolute; pointer-events: none; }
+        
+        .expanded-view { opacity: 0; position: absolute; transition: opacity 0.3s 0.2s; pointer-events: none; width: 100%; height: calc(100% - 50px); top: 50px; left: 0; padding: 0 1.5rem; display: flex; align-items: center; justify-content: center;}
+        .hover-block:hover .expanded-view { opacity: 1; pointer-events: auto; position: relative; top: 0; padding: 0;}
+
+        /* default view typography */
+        .dv-val { font-size: 3rem; font-weight: 800; line-height: 1; margin: 10px 0;}
+        .dv-icon { font-size: 2.5rem; margin-bottom: 10px; color: var(--text-muted);}
+        .dv-label { font-size: 1rem; font-weight: 600;}
+
+        /* --- EXPANDED VIEW 1: BQI GAUGE --- */
+        /* --- EXPANDED VIEW 1: BQI GAUGE --- */
+        .gauge-container { width: 200px; height: 100px; position: relative; overflow: hidden; margin-bottom: 20px;}
+        .gauge-background { width: 200px; height: 200px; border-radius: 50%; position: absolute; top: 0; border: 15px solid rgba(255,255,255,0.05); }
+        .gauge-fill { width: 200px; height: 200px; border-radius: 50%; position: absolute; top: 0; border: 15px solid var(--color-excellent); border-bottom-color: transparent; border-right-color: transparent; transform: rotate(-135deg); transition: transform 1s cubic-bezier(0.25, 1, 0.5, 1);}
+        .gauge-text { position: absolute; bottom: 0; width: 100%; text-align: center;}
+        .gauge-score { font-size: 3rem; font-weight: 800; line-height: 1;}
+        /* --- EXPANDED VIEW 2: MEDICAL LUNGS --- */
+        .lung-container{
+    display:flex;
+    align-items:center;
+    gap:20px;
+
+    width:100%;
+
+    margin-top:35px;
 }
 
-/* --- EXPANDED VIEW 3: TOXICITY TIMER --- */
-.timer-container { display: flex; align-items: center; gap: 20px;}
-.timer-ring { width: 90px; height: 90px; border-radius: 50%; border: 4px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; position: relative;}
-.timer-ring::after { content: ''; position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 4px solid var(--timer-color, var(--color-excellent)); border-top-color: transparent; animation: spin 4s linear infinite; }
-.timer-ring.paused::after { animation-play-state: paused; }
-@keyframes spin { 100% { transform: rotate(360deg); } }
-.timer-val { font-size: 1.2rem; font-weight: 700; color: var(--text-main);}
+        .lung-icon{
+            font-size:4.5rem;
+            color:#f97316;
+            flex-shrink:0;
+        }
 
-/* --- EXPANDED VIEW 4: BLUEPRINT --- */
-.rec-list { list-style: none; display: flex; flex-direction: column; gap: 12px; width: 100%; max-height: 100%; overflow-y: auto;}
-.rec-item { display: flex; align-items: flex-start; gap: 10px; font-size: 0.85rem; color: var(--text-muted); background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px;}
-.tag { padding: 3px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px; flex-shrink: 0;}
-.tag-prev { background: rgba(14, 165, 233, 0.2); color: var(--color-o2);}
-.tag-act { background: rgba(245, 158, 11, 0.2); color: var(--color-moderate);}
-.tag-emg { background: rgba(244, 63, 94, 0.2); color: var(--color-vpoor);}
-
-/* --- REST OF GRID --- */
-.glass-panel-static { background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 20px; padding: 1.5rem; display: flex; flex-direction: column;}
-.middle-row { display: grid; grid-template-columns: 1fr 2fr; gap: 1.5rem; margin-top: 1.5rem;}
-.sensors-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
-.sensor-card { background: rgba(0,0,0,0.2); border-radius: 12px; padding: 1rem; display: flex; flex-direction: column; gap: 5px; border: 1px solid rgba(255,255,255,0.03); }
-.sensor-header { display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); font-size: 0.85rem; }
-.sensor-value { font-size: 1.4rem; font-weight: 700; }
-.chart-container { flex: 1; min-height: 250px; width: 100%; position: relative; }
-
-/* --- BOTTOM ROW (GUIDE & ALERTS) --- */
-.bottom-row { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-top: 1.5rem; padding-bottom: 2rem;}
-
-/* BQI Level Guide */
-.level-guide-bar { height: 8px; border-radius: 4px; background: linear-gradient(to right, var(--color-excellent) 10%, var(--color-good) 30%, var(--color-moderate) 50%, var(--color-poor) 70%, var(--color-vpoor) 90%); margin: 30px 0 10px 0; position: relative; }
-.level-icons { display: flex; justify-content: space-between; position: absolute; top: -25px; width: 100%; padding: 0 5%;}
-.level-icons i { font-size: 1rem; background: var(--bg-color); border-radius: 50%;}
-.level-labels { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); text-align: center;}
-.level-labels div { flex: 1; display: flex; flex-direction: column; }
-.level-labels span { font-weight: 600; color: var(--text-main); margin-bottom: 2px;}
-
-/* Recent Alerts */
-.alert-list { display: flex; flex-direction: column; gap: 12px; margin-top: 10px;}
-.alert-item { display: flex; gap: 10px; font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;}
-.view-all-link { display: block; text-align: right; color: var(--color-o2); text-decoration: none; font-size: 0.85rem; font-weight: 600; margin-top: 15px;}
-.view-all-link:hover { text-decoration: underline; }
-
-/* Live Readings Redirect Link */
-.live-redirect { display: block; text-align: center; margin-top: 1.5rem; font-size: 0.8rem; color: var(--text-muted); text-decoration: none; transition: color 0.3s; }
-.live-redirect:hover { color: var(--color-o2); }
-
-.impact-preview{
-  margin-top:12px;
-  color:var(--text-muted);
-  font-size:0.85rem;
-  line-height:1.6;
+        .lung-text{
+    flex:1;
+    text-align:left;
+    margin-top:0px;
 }
+
+        .lung-text h3{
+            margin:0 0 8px 0;
+            font-size:1.35rem;
+            font-weight:700;
+            color:#f87171;
+        }
+
+        .lung-text p{
+            margin:0 0 1px 0;
+            line-height:1.5;
+        }
+
+        .impact-preview{
+            margin-bottom:1px;
+            color:var(--text-muted);
+            font-size:0.82rem;
+            line-height:1.5;
+        }
+
+        /* --- EXPANDED VIEW 3: TOXICITY TIMER --- */
+        .timer-container { display: flex; align-items: center; gap: 20px;}
+        .timer-ring { width: 90px; height: 90px; border-radius: 50%; border: 4px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; position: relative;}
+        .timer-ring::after { content: ''; position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 4px solid var(--timer-color, var(--color-excellent)); border-top-color: transparent; animation: spin 4s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .timer-val { font-size: 1.2rem; font-weight: 700; color: var(--text-main);}
+
+        /* --- EXPANDED VIEW 4: BLUEPRINT --- */
+        .rec-list { list-style: none; display: flex; flex-direction: column; gap: 12px; width: 100%;}
+        .rec-item { display: flex; align-items: flex-start; gap: 10px; font-size: 0.85rem; color: var(--text-muted); background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px;}
+        .tag { padding: 3px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px;}
+        .tag-prev { background: rgba(14, 165, 233, 0.2); color: var(--color-o2);}
+        .tag-act { background: rgba(245, 158, 11, 0.2); color: var(--color-moderate);}
+        .tag-emg { background: rgba(244, 63, 94, 0.2); color: var(--color-vpoor);}
+
+        /* --- REST OF GRID --- */
+        .glass-panel-static { background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 20px; padding: 1.5rem; display: flex; flex-direction: column;}
+        .middle-row { display: grid; grid-template-columns: 1fr 2fr; gap: 1.5rem; margin-top: 1.5rem;}
+        
+        .sensors-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+        .sensor-card { background: rgba(0,0,0,0.2); border-radius: 12px; padding: 1rem; display: flex; flex-direction: column; gap: 5px; border: 1px solid rgba(255,255,255,0.03); }
+        .sensor-header { display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); font-size: 0.85rem; }
+        .sensor-value { font-size: 1.4rem; font-weight: 700; }
+        .chart-container { flex: 1; min-height: 250px; width: 100%; position: relative; }
+        
+        /* --- BOTTOM ROW (GUIDE & ALERTS) --- */
+        .bottom-row { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-top: 1.5rem; padding-bottom: 2rem;}
+        
+        /* BQI Level Guide */
+        .level-guide-bar { height: 8px; border-radius: 4px; background: linear-gradient(to right, var(--color-excellent) 10%, var(--color-good) 30%, var(--color-moderate) 50%, var(--color-poor) 70%, var(--color-vpoor) 90%); margin: 30px 0 10px 0; position: relative; }
+        .level-icons { display: flex; justify-content: space-between; position: absolute; top: -25px; width: 100%; padding: 0 5%;}
+        .level-icons i { font-size: 1rem; background: var(--bg-color); border-radius: 50%;}
+        .level-labels { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); text-align: center;}
+        .level-labels div { flex: 1; display: flex; flex-direction: column; }
+        .level-labels span { font-weight: 600; color: var(--text-main); margin-bottom: 2px;}
+
+        /* Recent Alerts */
+        .alert-list { display: flex; flex-direction: column; gap: 12px; margin-top: 10px;}
+        .alert-item { display: flex; gap: 10px; font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;}
+        .view-all-link { display: block; text-align: right; color: var(--color-o2); text-decoration: none; font-size: 0.85rem; font-weight: 600; margin-top: 15px;}
+        .view-all-link:hover { text-decoration: underline; }
+
+        /* Live Readings Redirect Link */
+        .live-redirect { display: block; text-align: center; margin-top: 1.5rem; font-size: 0.8rem; color: var(--text-muted); text-decoration: none; transition: color 0.3s; }
+        .live-redirect:hover { color: var(--color-o2); }
+        .impact-preview{
+    margin-top:12px;
+    color:var(--text-muted);
+    font-size:0.85rem;
+    line-height:1.6;
+}
+
 .impact-btn{
-  display:inline-flex;
-  align-items:center;
-  gap:10px;
-  margin-top:15px;
-  padding:10px 16px;
-  border-radius:12px;
-  text-decoration:none;
-  background:rgba(14,165,233,0.15);
-  border:1px solid rgba(14,165,233,0.3);
-  color:#0ea5e9;
-  font-size:0.85rem;
-  font-weight:600;
-  transition:0.3s ease;
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+
+    margin-top:15px;
+
+    padding:10px 16px;
+
+    border-radius:12px;
+
+    text-decoration:none;
+
+    background:rgba(14,165,233,0.15);
+
+    border:1px solid rgba(14,165,233,0.3);
+
+    color:#0ea5e9;
+
+    font-size:0.85rem;
+
+    font-weight:600;
+
+    transition:0.3s ease;
 }
+
 .impact-btn:hover{
-  transform:translateY(-2px);
-  background:rgba(14,165,233,0.25);
+    transform:translateY(-2px);
+    background:rgba(14,165,233,0.25);
 }
-</style>
+    </style>
 </head>
 <body>
 
-<!-- SIDEBAR -->
-<aside class="sidebar">
-  <div class="logo"><i class="fa-solid fa-lungs"></i> BreathIQ</div>
-  <ul class="nav-menu">
-    <a href="/" class="nav-item active"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
-    <a href="live" class="nav-item"><i class="fa-solid fa-wave-square"></i> Live Readings</a>
-    <a href="history" class="nav-item"><i class="fa-solid fa-clock-rotate-left"></i> History &amp; Reports</a>
-    <a href="about" class="nav-item"><i class="fa-solid fa-circle-info"></i> About</a>
-  </ul>
-  <div class="device-status">
-    <h3>Device Status</h3>
-    <div style="font-weight:600;"><i class="fa-solid fa-circle status-dot"></i> Online</div>
-    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 10px;">ID: <span style="color:white">BQI-ESP32-001</span></div>
-  </div>
-</aside>
-
-<!-- MAIN CONTENT -->
-<main class="main-content">
-  <header class="header">
-    <div class="header-title">
-      <h1>Dashboard Overview</h1>
-      <p>Hover over the metric cards below for deep medical analysis.</p>
-    </div>
-    <div class="connection-badge"><i class="fa-solid fa-wifi"></i> Connected &amp; Logging</div>
-  </header>
-
-  <!-- TOP ROW: THE INTERACTIVE ACCORDION -->
-  <div class="interactive-row">
-
-    <!-- BLOCK 1: BQI -->
-    <div class="hover-block">
-      <div class="block-title"><i class="fa-solid fa-chart-simple"></i> Breath Quality Index</div>
-      <div class="default-view">
-        <div class="dv-val" id="dv-bqi-val">--</div>
-        <div class="dv-label" id="dv-bqi-label" style="color: var(--text-muted)">CALCULATING</div>
-      </div>
-      <div class="expanded-view">
-        <div style="display: flex; flex-direction: column; align-items: center;">
-          <div class="gauge-container">
-            <div class="gauge-background"></div>
-            <div class="gauge-fill" id="ui-gauge-fill"></div>
-            <div class="gauge-text">
-              <div class="gauge-score" id="ev-bqi-val">--</div>
-            </div>
-          </div>
-          <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;" id="ev-bqi-label">--</div>
-          <div style="font-size: 0.75rem; color: rgba(255,255,255,0.3); margin-top: 5px;">Scale: 0 (Excellent) - 500 (Severe)</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- BLOCK 2: STATUS / LUNGS -->
-    <div class="hover-block">
-      <div class="block-title"><i class="fa-solid fa-lungs-virus"></i> Air Quality Status</div>
-      <div class="default-view">
-        <i class="fa-solid fa-lungs dv-icon" id="dv-status-icon"></i>
-        <div class="dv-label" id="dv-status-text">--</div>
-      </div>
-      <div class="expanded-view">
-        <div class="lung-container">
-          <i class="fa-solid fa-lungs lung-icon" id="ev-lung-icon"></i>
-          <div class="lung-text">
-            <h3 id="ev-status-title">Analyzing...</h3>
-            <p id="ev-status-desc">
-              Reading environmental telemetry...
-            </p>
-            <div class="impact-preview">
-              Click below for a complete medical and environmental impact analysis based on the detected air quality conditions.
-            </div>
-            <a href="health-impact" class="impact-btn">
-              <i class="fa-solid fa-book-medical"></i>
-              Detailed Health Impact Analysis →
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- BLOCK 3: RISK / TIMER -->
-    <div class="hover-block">
-      <div class="block-title"><i class="fa-solid fa-shield-halved"></i> Exposure Risk</div>
-      <div class="default-view">
-        <i class="fa-solid fa-stopwatch dv-icon" id="dv-risk-icon"></i>
-        <div class="dv-label" id="dv-risk-text">--</div>
-      </div>
-      <div class="expanded-view">
-        <div class="timer-container">
-          <div class="timer-ring" id="ev-timer-ring">
-            <i class="fa-solid fa-hourglass-half" style="font-size: 1.5rem; color: var(--text-muted);" id="ev-timer-icon"></i>
-          </div>
-          <div>
-            <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Max Safe Exposure</div>
-            <div class="timer-val" id="ev-timer-val">Calculating...</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- BLOCK 4: BLUEPRINT -->
-    <div class="hover-block">
-      <div class="block-title"><i class="fa-solid fa-clipboard-list"></i> Recommendations</div>
-      <div class="default-view">
-        <i class="fa-solid fa-list-check dv-icon" style="color: var(--color-o2)"></i>
-        <div class="dv-label">View Blueprint</div>
-      </div>
-      <div class="expanded-view">
-        <ul class="rec-list" id="ev-rec-list">
-          <li class="rec-item"><span class="tag tag-prev">SYSTEM</span> Waiting for sensor packet...</li>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="logo"><i class="fa-solid fa-lungs"></i> BreathIQ</div>
+        <ul class="nav-menu">
+            <a href="/" class="nav-item active"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+            <a href="live" class="nav-item"><i class="fa-solid fa-wave-square"></i> Live Readings</a>
+            <a href="history" class="nav-item"><i class="fa-solid fa-clock-rotate-left"></i> History & Reports</a>
+            <a href="about" class="nav-item"><i class="fa-solid fa-circle-info"></i> About</a>
         </ul>
-      </div>
+
+        <div class="device-status">
+            <h3>Device Status</h3>
+            <div style="font-weight:600;"><i class="fa-solid fa-circle status-dot"></i> Online</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 10px;">ID: <span style="color:white">BQI-ESP32-001</span></div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        
+        <header class="header">
+            <div class="header-title">
+                <h1>Dashboard Overview</h1>
+                <p>Hover over the metric cards below for deep medical analysis.</p>
+            </div>
+            <div class="connection-badge"><i class="fa-solid fa-wifi"></i> Connected & Logging</div>
+        </header>
+
+        <!-- TOP ROW: THE INTERACTIVE ACCORDION -->
+        <div class="interactive-row">
+            
+            <!-- BLOCK 1: BQI -->
+            <div class="hover-block">
+                <div class="block-title"><i class="fa-solid fa-chart-simple"></i> Breath Quality Index</div>
+                
+                <div class="default-view">
+                    <div class="dv-val" id="dv-bqi-val">--</div>
+                    <div class="dv-label" id="dv-bqi-label" style="color: var(--text-muted)">CALCULATING</div>
+                </div>
+
+                <div class="expanded-view">
+                    <div style="display: flex; flex-direction: column; align-items: center;">
+                        <div class="gauge-container">
+                            <div class="gauge-background"></div>
+                            <div class="gauge-fill" id="ui-gauge-fill"></div>
+                            <div class="gauge-text">
+                                <div class="gauge-score" id="ev-bqi-val">--</div>
+                            </div>
+                        </div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;" id="ev-bqi-label">--</div>
+                        <div style="font-size: 0.75rem; color: rgba(255,255,255,0.3); margin-top: 5px;">Scale: 0 (Poor) - 100 (Excellent)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BLOCK 2: STATUS / LUNGS -->
+            <div class="hover-block">
+                <div class="block-title"><i class="fa-solid fa-lungs-virus"></i> Air Quality Status</div>
+                
+                <div class="default-view">
+                    <i class="fa-solid fa-lungs dv-icon" id="dv-status-icon"></i>
+                    <div class="dv-label" id="dv-status-text">--</div>
+                </div>
+
+                <div class="expanded-view">
+
+    <div class="lung-container">
+
+        <i class="fa-solid fa-lungs lung-icon" id="ev-lung-icon"></i>
+
+        <div class="lung-text">
+
+            <h3 id="ev-status-title">Analyzing...</h3>
+
+            <p id="ev-status-desc">
+                Reading environmental telemetry...
+            </p>
+
+            <div class="impact-preview">
+                Click below for a complete medical and environmental impact analysis based on the detected air quality conditions.
+            </div>
+
+            <a href="health-impact" class="impact-btn">
+                <i class="fa-solid fa-book-medical"></i>
+                Detailed Health Impact Analysis →
+            </a>
+
+        </div>
+
     </div>
 
-  </div>
+</div>
+            </div>
 
-  <!-- MIDDLE ROW (STATIC GRID) -->
-  <div class="middle-row">
-    <div class="glass-panel-static">
-      <div class="block-title"><i class="fa-solid fa-microchip"></i> Live Sensor Readings</div>
-      <div class="sensors-grid">
-        <div class="sensor-card">
-          <div class="sensor-header"><span>CO2 Level</span><i class="fa-solid fa-cloud" style="color:var(--color-co2)"></i></div>
-          <div class="sensor-value"><span id="ui-co2">--</span> <span style="font-size:0.8rem; color:#94a3b8">ppm</span></div>
+            <!-- BLOCK 3: RISK / TIMER -->
+            <div class="hover-block">
+                <div class="block-title"><i class="fa-solid fa-shield-halved"></i> Exposure Risk</div>
+                
+                <div class="default-view">
+                    <i class="fa-solid fa-stopwatch dv-icon" id="dv-risk-icon"></i>
+                    <div class="dv-label" id="dv-risk-text">--</div>
+                </div>
+
+                <div class="expanded-view">
+                    <div class="timer-container">
+                        <div class="timer-ring" id="ev-timer-ring">
+                            <i class="fa-solid fa-hourglass-half" style="font-size: 1.5rem; color: var(--text-muted);" id="ev-timer-icon"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Max Safe Exposure</div>
+                            <div class="timer-val" id="ev-timer-val">Calculating...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BLOCK 4: BLUEPRINT -->
+            <div class="hover-block">
+                <div class="block-title"><i class="fa-solid fa-clipboard-list"></i> Recommendations</div>
+                
+                <div class="default-view">
+                    <i class="fa-solid fa-list-check dv-icon" style="color: var(--color-o2)"></i>
+                    <div class="dv-label">View Blueprint</div>
+                </div>
+
+                <div class="expanded-view">
+                    <ul class="rec-list" id="ev-rec-list">
+                        <li class="rec-item"><span class="tag tag-prev">SYSTEM</span> Waiting for sensor packet...</li>
+                    </ul>
+                </div>
+            </div>
+
         </div>
-        <div class="sensor-card">
-          <div class="sensor-header"><span>Oxygen (O2)</span><i class="fa-solid fa-wind" style="color:var(--color-o2)"></i></div>
-          <div class="sensor-value"><span id="ui-o2">--</span> <span style="font-size:0.8rem; color:#94a3b8">%</span></div>
+
+        <!-- MIDDLE ROW (STATIC GRID) -->
+        <div class="middle-row">
+            <div class="glass-panel-static">
+                <div class="block-title"><i class="fa-solid fa-microchip"></i> Live Sensor Readings</div>
+                <div class="sensors-grid">
+                    <div class="sensor-card">
+                        <div class="sensor-header"><span>CO2 Level</span><i class="fa-solid fa-cloud" style="color:var(--color-co2)"></i></div>
+                        <div class="sensor-value"><span id="ui-co2">--</span> <span style="font-size:0.8rem; color:#94a3b8">ppm</span></div>
+                    </div>
+                    <div class="sensor-card">
+                        <div class="sensor-header"><span>Oxygen (O2)</span><i class="fa-solid fa-wind" style="color:var(--color-o2)"></i></div>
+                        <div class="sensor-value"><span id="ui-o2">--</span> <span style="font-size:0.8rem; color:#94a3b8">%</span></div>
+                    </div>
+                    <div class="sensor-card">
+                        <div class="sensor-header"><span>VOCs</span><i class="fa-solid fa-vial-virus" style="color:var(--color-voc)"></i></div>
+                        <div class="sensor-value"><span id="ui-voc">--</span> <span style="font-size:0.8rem; color:#94a3b8">ppm</span></div>
+                    </div>
+                    <div class="sensor-card">
+                        <div class="sensor-header"><span>Temperature</span><i class="fa-solid fa-temperature-half" style="color:var(--color-temp)"></i></div>
+                        <div class="sensor-value"><span id="ui-temp">--</span> <span style="font-size:0.8rem; color:#94a3b8">°C</span></div>
+                    </div>
+                </div>
+                
+                <!-- Redirect Link -->
+                <a href="live" class="live-redirect">Real-time updates every 5 seconds <i class="fa-solid fa-arrow-right" style="margin-left: 5px;"></i></a>
+            </div>
+
+            <div class="glass-panel-static">
+                <div class="block-title"><i class="fa-solid fa-chart-line"></i> BQI Trend (24h History)</div>
+                <div class="chart-container"><canvas id="bqiChart"></canvas></div>
+            </div>
         </div>
-        <div class="sensor-card">
-          <div class="sensor-header"><span>VOCs</span><i class="fa-solid fa-vial-virus" style="color:var(--color-voc)"></i></div>
-          <div class="sensor-value"><span id="ui-voc">--</span> <span style="font-size:0.8rem; color:#94a3b8">ppm</span></div>
+        
+        <!-- BOTTOM ROW (GUIDE & ALERTS) -->
+        <div class="bottom-row">
+            
+            <div class="glass-panel-static">
+                <div class="block-title">BQI Level Guide</div>
+                
+                <div class="level-guide-bar">
+                    <div class="level-icons">
+                        <i class="fa-solid fa-face-laugh-beam" style="color: var(--color-excellent)"></i>
+                        <i class="fa-solid fa-face-smile" style="color: var(--color-good)"></i>
+                        <i class="fa-solid fa-face-meh" style="color: var(--color-moderate)"></i>
+                        <i class="fa-solid fa-face-frown" style="color: var(--color-poor)"></i>
+                        <i class="fa-solid fa-face-dizzy" style="color: var(--color-vpoor)"></i>
+                    </div>
+                </div>
+                <div class="level-labels">
+                    <div><span>0-50</span>Good</div>
+                    <div><span>51-100</span>Satisfactory</div>
+                    <div><span>101-200</span>Moderate</div>
+                    <div><span>201-300</span>Poor</div>
+                    <div><span>301-400</span>Very Poor</div>
+                    <div><span>401-500</span>Severe</div>
+                </div>
+                <div style="text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 20px;" id="dynamic-guide-text">
+                    Your BQI is calculating. Keep monitoring for better respiratory health.
+                </div>
+            </div>
+
+            <div class="glass-panel-static">
+                <div class="block-title">Recent Alerts</div>
+                <div class="alert-list">
+                    <div class="alert-item">
+                        <i class="fa-solid fa-bell" style="color: var(--color-moderate); margin-top: 3px;"></i>
+                        <div>Initializing medical sensor network...</div>
+                    </div>
+                    <div class="alert-item">
+                        <i class="fa-solid fa-check-circle" style="color: var(--color-excellent); margin-top: 3px;"></i>
+                        <div>ESP32 hardware uplink established.</div>
+                    </div>
+                </div>
+                <a href="history" class="view-all-link">View All Logs</a>
+            </div>
+
         </div>
-        <div class="sensor-card">
-          <div class="sensor-header"><span>Temperature</span><i class="fa-solid fa-temperature-half" style="color:var(--color-temp)"></i></div>
-          <div class="sensor-value"><span id="ui-temp">--</span> <span style="font-size:0.8rem; color:#94a3b8">°C</span></div>
-        </div>
-      </div>
-      <!-- Redirect Link -->
-      <a href="live" class="live-redirect">Real-time updates every 5 seconds <i class="fa-solid fa-arrow-right" style="margin-left: 5px;"></i></a>
-    </div>
 
-    <div class="glass-panel-static">
-      <div class="block-title"><i class="fa-solid fa-chart-line"></i> BQI Trend (24h History)</div>
-      <div class="chart-container"><canvas id="bqiChart"></canvas></div>
-    </div>
-  </div>
+    </main>
 
-  <!-- BOTTOM ROW (GUIDE & ALERTS) -->
-  <div class="bottom-row">
-    <div class="glass-panel-static">
-      <div class="block-title">BQI Level Guide</div>
-      <div class="level-guide-bar">
-        <div class="level-icons">
-          <i class="fa-solid fa-face-laugh-beam" style="color: var(--color-excellent)"></i>
-          <i class="fa-solid fa-face-smile" style="color: var(--color-good)"></i>
-          <i class="fa-solid fa-face-meh" style="color: var(--color-moderate)"></i>
-          <i class="fa-solid fa-face-frown" style="color: var(--color-poor)"></i>
-          <i class="fa-solid fa-face-dizzy" style="color: var(--color-vpoor)"></i>
-        </div>
-      </div>
-      <div class="level-labels">
-        <div><span>0-50</span>Good</div>
-        <div><span>51-100</span>Satisfactory</div>
-        <div><span>101-200</span>Moderate</div>
-        <div><span>201-300</span>Poor</div>
-        <div><span>301-400</span>Very Poor</div>
-        <div><span>401-500</span>Severe</div>
-      </div>
-      <div style="text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 20px;" id="dynamic-guide-text">
-        Your BQI is calculating. Keep monitoring for better respiratory health.
-      </div>
-    </div>
+    <!-- JAVASCRIPT ENGINE -->
+    <script>
+        // --- 1. Chart.js Setup ---
+        const ctx = document.getElementById('bqiChart').getContext('2d');
+        let gradient = ctx.createLinearGradient(0, 0, 0, 300);
+        gradient.addColorStop(0, 'rgba(16, 185, 129, 0.4)'); 
+        gradient.addColorStop(1, 'rgba(16, 185, 129, 0.0)'); 
 
-    <div class="glass-panel-static">
-      <div class="block-title">Recent Alerts</div>
-      <div class="alert-list">
-        <div class="alert-item">
-          <i class="fa-solid fa-bell" style="color: var(--color-moderate); margin-top: 3px;"></i>
-          <div>Initializing medical sensor network...</div>
-        </div>
-        <div class="alert-item">
-          <i class="fa-solid fa-check-circle" style="color: var(--color-excellent); margin-top: 3px;"></i>
-          <div>ESP32 hardware uplink established.</div>
-        </div>
-      </div>
-      <a href="history" class="view-all-link">View All Logs</a>
-    </div>
-  </div>
-</main>
+        const bqiChart = new Chart(ctx, {
+            type: 'line',
+            data: { labels: [], datasets: [{ label: 'BQI', data: [], borderColor: '#10b981', backgroundColor: gradient, borderWidth: 2, pointRadius: 3, fill: true, tension: 0.4 }] },
+            options: {
+                responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+                scales: {
+                    y: { min: 0, max: 500, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#94a3b8' } },
+                    x: { grid: { display: false }, ticks: { color: '#94a3b8', maxTicksLimit: 8 } }
+                }
+            }
+        });
 
-<!-- JAVASCRIPT ENGINE -->
-<script>
-// --- 1. Chart.js Setup ---
-const ctx = document.getElementById('bqiChart').getContext('2d');
-let gradient = ctx.createLinearGradient(0, 0, 0, 300);
-gradient.addColorStop(0, 'rgba(16, 185, 129, 0.4)');
-gradient.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
+        // --- API URLs ---
+        const LIVE_API_URL = 'https://api.breathiq.qzz.io/api/live-metrics';
+        const HISTORY_API_URL = 'https://api.breathiq.qzz.io/api/history';
 
-const bqiChart = new Chart(ctx, {
-  type: 'line',
-  data: { labels: [], datasets: [{ label: 'BQI', data: [], borderColor: '#10b981', backgroundColor: gradient, borderWidth: 2, pointRadius: 3, fill: true, tension: 0.4 }] },
-  options: {
-    responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
-    scales: {
-      y: { min: 0, max: 500, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#94a3b8' } },
-      x: { grid: { display: false }, ticks: { color: '#94a3b8', maxTicksLimit: 8 } }
-    }
-  }
-});
+        // --- 2. Fetch History (Runs once) ---
+        async function fetchHistoryData() {
+            try {
+                const response = await fetch(HISTORY_API_URL);
+                const historyData = await response.json();
+                bqiChart.data.labels = []; bqiChart.data.datasets[0].data = [];
+                historyData.forEach(point => {
+                    const localTime = new Date(point.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                    bqiChart.data.labels.push(localTime);
+                    bqiChart.data.datasets[0].data.push(point.bqi);
+                });
+                bqiChart.update();
+            } catch (error) { console.error("Error fetching history:", error); }
+        }
 
-// --- API URLs ---
-const LIVE_API_URL = 'https://api.breathiq.qzz.io/api/live-metrics';
-const HISTORY_API_URL = 'https://api.breathiq.qzz.io/api/history';
+        // --- 3. Medical UI Logic Engine (Runs every 5 secs) ---
+        async function fetchLiveSensorData() {
+            try {
+                const response = await fetch(LIVE_API_URL);
+                const data = await response.json();
+                
+                // Update Static Sensors
+                document.getElementById('ui-co2').innerText = data.mq135;
+                document.getElementById('ui-o2').innerText = data.spo2;
+                document.getElementById('ui-voc').innerText = data.dust;
+                document.getElementById('ui-temp').innerText = data.temperature;
 
-// --- 2. Fetch History (Runs once) ---
-async function fetchHistoryData() {
-  try {
-    const response = await fetch(HISTORY_API_URL);
-    const historyData = await response.json();
+                // --- ACCORDION DATA UPDATES ---
+                const bqi = data.bqi;
+                
+                // Block 1: BQI
+                document.getElementById('dv-bqi-val').innerText = bqi;
+                document.getElementById('ev-bqi-val').innerText = bqi;
+                
+                // AQI Scale 0–500
+                const rotation = -135 + ((bqi / 500) * 180);
+                const gaugeFill = document.getElementById('ui-gauge-fill');
+                gaugeFill.style.transform = `rotate(${rotation}deg)`;
 
-    bqiChart.data.labels = []; bqiChart.data.datasets[0].data = [];
+                // Variables to hold dynamic states
+                let color = '';
+                let label = '';
+                let lungTitle = '';
+                let lungDesc = '';
+                let timerText = '';
+                let riskText = '';
+                let recHtml = '';
 
-    historyData.forEach(point => {
-      // Include the date so points from different days are distinguishable
-      const localTime = new Date(point.timestamp).toLocaleString('en-US', {
-        month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
-      });
-      bqiChart.data.labels.push(localTime);
-      bqiChart.data.datasets[0].data.push(point.bqi);
-    });
+                // Determine Worst Pollutant (For Blueprint Logic)
+                let worstGas = 'none';
+                if (bqi < 81) {
+                    if (data.mq135 > 1000) worstGas = 'co2';
+                    else if (data.dust > 1.0) worstGas = 'voc';
+                    else if (data.spo2 < 95) worstGas = 'o2';
+                }
 
-    bqiChart.update();
-  } catch (error) { console.error("Error fetching history:", error); }
+                // Apply Medical Thresholds
+                if (bqi <= 50) {
+    color = '#4CAF50';
+    label = 'Good';
+    riskText = 'Low Risk';
+
+    lungTitle = "Healthy Air Quality";
+    lungDesc = "Air quality is excellent. Minimal impact on health.";
+    timerText = "UNLIMITED";
+
+    document.getElementById('ev-timer-ring').style.animationPlayState = 'paused';
+    document.getElementById('ev-timer-icon').className = "fa-solid fa-shield-check";
+    document.getElementById('ev-timer-icon').style.color = color;
 }
 
-// --- 3. Medical UI Logic Engine (Runs every 5 secs) ---
-async function fetchLiveSensorData() {
-  try {
-    const response = await fetch(LIVE_API_URL);
-    const data = await response.json();
+else if (bqi <= 100) {
+    color = '#8BC34A';
+    label = 'Satisfactory';
+    riskText = 'Minimal Risk';
 
-    // Update Static Sensors
-    // NOTE: the backend stores/returns the already-converted fields
-    // (co2, oxygen, voc, temperature, humidity, bqi) - these names match
-    // the /api/history payload and the live.html page.
-    document.getElementById('ui-co2').innerText = data.co2 ?? '--';
-    document.getElementById('ui-o2').innerText = data.oxygen ?? '--';
-    document.getElementById('ui-voc').innerText = data.voc ?? '--';
-    document.getElementById('ui-temp').innerText = data.temperature ?? '--';
+    lungTitle = "Acceptable Air Quality";
+    lungDesc = "Air quality is acceptable. Minor discomfort may occur for sensitive individuals.";
+    timerText = "> 8 HOURS";
 
-    // --- ACCORDION DATA UPDATES ---
-    const bqi = data.bqi ?? 0;
-
-    // Block 1: BQI
-    document.getElementById('dv-bqi-val').innerText = bqi;
-    document.getElementById('ev-bqi-val').innerText = bqi;
-
-    // BQI Scale 0-500
-    const rotation = -135 + ((bqi / 500) * 180);
-    const gaugeFill = document.getElementById('ui-gauge-fill');
-    gaugeFill.style.transform = `rotate(${rotation}deg)`;
-
-    // Variables to hold dynamic states
-    let color = '';
-    let label = '';
-    let lungTitle = '';
-    let lungDesc = '';
-    let timerText = '';
-    let riskText = '';
-    let recHtml = '';
-
-    // Determine Worst Pollutant (For Blueprint Logic).
-    // This now runs for EVERY BQI level, not just "Good" range, so
-    // recommendations are still useful when air quality is bad.
-    let worstGas = 'none';
-    if (data.co2 > 1000) worstGas = 'co2';
-    else if (data.voc > 1.0) worstGas = 'voc';
-    else if (data.oxygen < 19.5) worstGas = 'o2';
-
-    // Apply Medical Thresholds
-    if (bqi <= 50) {
-      color = '#4CAF50';
-      label = 'Good';
-      riskText = 'Low Risk';
-      lungTitle = "Healthy Air Quality";
-      lungDesc = "Air quality is excellent. Minimal impact on health.";
-      timerText = "UNLIMITED";
-      document.getElementById('ev-timer-ring').classList.add('paused');
-      document.getElementById('ev-timer-icon').className = "fa-solid fa-shield-check";
-      document.getElementById('ev-timer-icon').style.color = color;
-    }
-    else if (bqi <= 100) {
-      color = '#8BC34A';
-      label = 'Satisfactory';
-      riskText = 'Minimal Risk';
-      lungTitle = "Acceptable Air Quality";
-      lungDesc = "Air quality is acceptable. Minor discomfort may occur for sensitive individuals.";
-      timerText = "> 8 HOURS";
-      document.getElementById('ev-timer-ring').classList.remove('paused');
-      document.getElementById('ev-timer-icon').className = "fa-solid fa-hourglass-half";
-      document.getElementById('ev-timer-icon').style.color = color;
-    }
-    else if (bqi <= 200) {
-      color = '#FFEB3B';
-      label = 'Moderate';
-      riskText = 'Medium Risk';
-      lungTitle = "Breathing Discomfort";
-      lungDesc = "People with respiratory diseases may experience discomfort.";
-      timerText = "04h 30m";
-      document.getElementById('ev-timer-ring').classList.remove('paused');
-      document.getElementById('ev-timer-icon').className = "fa-solid fa-hourglass-half";
-      document.getElementById('ev-timer-icon').style.color = color;
-    }
-    else if (bqi <= 300) {
-      color = '#FF9800';
-      label = 'Poor';
-      riskText = 'High Risk';
-      lungTitle = "Respiratory Stress";
-      lungDesc = "Breathing discomfort likely on prolonged exposure.";
-      timerText = "02h 00m";
-      document.getElementById('ev-timer-ring').classList.remove('paused');
-      document.getElementById('ev-timer-icon').className = "fa-solid fa-triangle-exclamation";
-      document.getElementById('ev-timer-icon').style.color = color;
-    }
-    else if (bqi <= 400) {
-      color = '#F44336';
-      label = 'Very Poor';
-      riskText = 'Very High Risk';
-      lungTitle = "Serious Respiratory Impact";
-      lungDesc = "Respiratory illness may occur with prolonged exposure.";
-      timerText = "00h 30m";
-      document.getElementById('ev-timer-ring').classList.remove('paused');
-      document.getElementById('ev-timer-icon').className = "fa-solid fa-radiation";
-      document.getElementById('ev-timer-icon').style.color = color;
-    }
-    else {
-      color = '#8B0000';
-      label = 'Severe';
-      riskText = 'Hazardous';
-      lungTitle = "Emergency Conditions";
-      lungDesc = "Healthy people may experience serious health effects. Immediate action required.";
-      timerText = "00h 05m";
-      document.getElementById('ev-timer-ring').classList.remove('paused');
-      document.getElementById('ev-timer-icon').className = "fa-solid fa-skull-crossbones";
-      document.getElementById('ev-timer-icon').style.color = color;
-    }
-
-    // --- Build Recommendations List ---
-    // General, BQI-band based guidance
-    if (bqi <= 50) {
-      recHtml += `<li class="rec-item"><span class="tag tag-prev">PREV</span> Air quality is excellent. Normal activity can continue without restrictions.</li>`;
-      recHtml += `<li class="rec-item"><span class="tag tag-prev">PREV</span> Good time to ventilate the room and bring in fresh air.</li>`;
-    } else if (bqi <= 100) {
-      recHtml += `<li class="rec-item"><span class="tag tag-prev">PREV</span> Air quality is satisfactory. Maintain normal ventilation.</li>`;
-      recHtml += `<li class="rec-item"><span class="tag tag-prev">PREV</span> Sensitive individuals should watch for mild discomfort.</li>`;
-    } else if (bqi <= 200) {
-      recHtml += `<li class="rec-item"><span class="tag tag-act">ACT</span> Air quality is moderate. Increase ventilation, especially for sensitive groups.</li>`;
-    } else if (bqi <= 300) {
-      recHtml += `<li class="rec-item"><span class="tag tag-act">ACT</span> Air quality is poor. Limit strenuous activity and improve air circulation.</li>`;
-    } else if (bqi <= 400) {
-      recHtml += `<li class="rec-item"><span class="tag tag-emg">EMG</span> Air quality is very poor. Stay indoors and use air filtration if available.</li>`;
-    } else {
-      recHtml += `<li class="rec-item"><span class="tag tag-emg">EMG</span> Hazardous air quality. Leave the area and seek fresh air immediately.</li>`;
-    }
-
-    // Gas-specific guidance, based on the worst detected pollutant
-    if (worstGas === 'co2') {
-      recHtml += `<li class="rec-item"><span class="tag tag-act">ACT</span> CO2 levels are elevated. Open a window or door to ventilate the space.</li>`;
-    } else if (worstGas === 'voc') {
-      recHtml += `<li class="rec-item"><span class="tag tag-act">ACT</span> Volatile organic compounds detected. Reduce use of aerosols, paints, or cleaning chemicals nearby.</li>`;
-    } else if (worstGas === 'o2') {
-      recHtml += `<li class="rec-item"><span class="tag tag-emg">EMG</span> Oxygen reading is low. Move to a well-ventilated area and rest.</li>`;
-    }
-
-    // Apply Colors & Text to Elements
-    document.getElementById('dv-bqi-label').innerText = label;
-    document.getElementById('dv-bqi-val').style.color = color;
-    document.getElementById('ev-bqi-label').innerText = label;
-    document.getElementById('ev-bqi-label').style.color = color;
-
-    // Only recolor the visible top+left edges of the gauge ring -
-    // the bottom/right edges must stay transparent to keep the
-    // "C" shaped arc (setting the borderColor shorthand would
-    // override those transparent edges and turn the arc into a
-    // full circle).
-    gaugeFill.style.borderTopColor = color;
-    gaugeFill.style.borderLeftColor = color;
-
-    document.getElementById('dv-status-icon').style.color = color;
-    document.getElementById('dv-status-text').innerText = label;
-    document.getElementById('dv-status-text').style.color = color;
-    document.getElementById('ev-lung-icon').style.color = color;
-    document.getElementById('ev-status-title').innerText = lungTitle;
-    document.getElementById('ev-status-title').style.color = color;
-    document.getElementById('ev-status-desc').innerText = lungDesc;
-
-    document.getElementById('dv-risk-icon').style.color = color;
-    document.getElementById('dv-risk-text').innerText = riskText;
-    document.getElementById('dv-risk-text').style.color = color;
-
-    document.getElementById('ev-timer-val').innerText = timerText;
-    document.getElementById('ev-timer-val').style.color = color;
-
-    // Safely update the spinning ring color using a CSS variable
-    document.getElementById('ev-timer-ring').style.setProperty('--timer-color', color);
-
-    // Update Recommendations List
-    document.getElementById('ev-rec-list').innerHTML = recHtml;
-
-    // Update the text at the very bottom of the page
-    document.getElementById('dynamic-guide-text').innerHTML = `Your current BQI is <span style="color:${color}; font-weight:bold;">${bqi}</span>. Keep monitoring for better respiratory health.`;
-
-  } catch (error) { console.error("Error fetching live data:", error); }
+    document.getElementById('ev-timer-ring').style.animationPlayState = 'running';
+    document.getElementById('ev-timer-icon').className = "fa-solid fa-hourglass-half";
+    document.getElementById('ev-timer-icon').style.color = color;
 }
 
-// --- Start ---
-fetchHistoryData();
-fetchLiveSensorData();
-setInterval(fetchLiveSensorData, 5000);
-</script>
+else if (bqi <= 200) {
+    color = '#FFEB3B';
+    label = 'Moderate';
+    riskText = 'Medium Risk';
+
+    lungTitle = "Breathing Discomfort";
+    lungDesc = "People with respiratory diseases may experience discomfort.";
+
+    timerText = "04h 30m";
+
+    document.getElementById('ev-timer-ring').style.animationPlayState = 'running';
+    document.getElementById('ev-timer-icon').className = "fa-solid fa-hourglass-half";
+    document.getElementById('ev-timer-icon').style.color = color;
+}
+
+else if (bqi <= 300) {
+    color = '#FF9800';
+    label = 'Poor';
+    riskText = 'High Risk';
+
+    lungTitle = "Respiratory Stress";
+    lungDesc = "Breathing discomfort likely on prolonged exposure.";
+
+    timerText = "02h 00m";
+
+    document.getElementById('ev-timer-ring').style.animationPlayState = 'running';
+    document.getElementById('ev-timer-icon').className = "fa-solid fa-triangle-exclamation";
+    document.getElementById('ev-timer-icon').style.color = color;
+}
+
+else if (bqi <= 400) {
+    color = '#F44336';
+    label = 'Very Poor';
+    riskText = 'Very High Risk';
+
+    lungTitle = "Serious Respiratory Impact";
+    lungDesc = "Respiratory illness may occur with prolonged exposure.";
+
+    timerText = "00h 30m";
+
+    document.getElementById('ev-timer-ring').style.animationPlayState = 'running';
+    document.getElementById('ev-timer-icon').className = "fa-solid fa-radiation";
+    document.getElementById('ev-timer-icon').style.color = color;
+}
+
+else {
+    color = '#8B0000';
+    label = 'Severe';
+    riskText = 'Hazardous';
+
+    lungTitle = "Emergency Conditions";
+    lungDesc = "Healthy people may experience serious health effects. Immediate action required.";
+
+    timerText = "00h 05m";
+
+    document.getElementById('ev-timer-ring').style.animationPlayState = 'running';
+    document.getElementById('ev-timer-icon').className = "fa-solid fa-skull-crossbones";
+    document.getElementById('ev-timer-icon').style.color = color;
+}
+
+                // Apply Colors & Text to Elements
+                document.getElementById('dv-bqi-label').innerText = label;
+                document.getElementById('dv-bqi-val').style.color = color;
+                document.getElementById('ev-bqi-label').innerText = label;
+                document.getElementById('ev-bqi-label').style.color = color;
+                gaugeFill.style.borderColor = color;
+
+                document.getElementById('dv-status-icon').style.color = color;
+                document.getElementById('dv-status-text').innerText = label;
+                document.getElementById('dv-status-text').style.color = color;
+                document.getElementById('ev-lung-icon').style.color = color;
+                document.getElementById('ev-status-title').innerText = lungTitle;
+                document.getElementById('ev-status-title').style.color = color;
+                document.getElementById('ev-status-desc').innerText = lungDesc;
+                const impactBtn = document.querySelector(".impact-btn");
+                
+                document.getElementById('dv-risk-icon').style.color = color;
+                document.getElementById('dv-risk-text').innerText = riskText;
+                document.getElementById('dv-risk-text').style.color = color;
+                document.getElementById('ev-timer-val').innerText = timerText;
+                document.getElementById('ev-timer-val').style.color = color;
+                
+                // Safely update the spinning ring color using a CSS variable
+                document.getElementById('ev-timer-ring').style.setProperty('--timer-color', color);
+
+                // Update Recommendations List
+                document.getElementById('ev-rec-list').innerHTML = recHtml;
+                
+                // Update the text at the very bottom of the page
+                document.getElementById('dynamic-guide-text').innerHTML = `Your current BQI is <span style="color:${color}; font-weight:bold;">${bqi}</span>. Keep monitoring for better respiratory health.`;
+
+            } catch (error) { console.error("Error fetching live data:", error); }
+        }
+
+        // --- Start ---
+        fetchHistoryData(); 
+        fetchLiveSensorData(); 
+        setInterval(fetchLiveSensorData, 5000); 
+
+    </script>
 </body>
 </html>
