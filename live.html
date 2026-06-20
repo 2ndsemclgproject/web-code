@@ -175,7 +175,7 @@ body {
 }
 .bottom-row {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 1rem;
   margin-top: 0.5rem;
 }
@@ -372,17 +372,17 @@ body {
   <div class="bottom-row">
     <div class="sensor-card">
       <i class="fa-solid fa-cloud sensor-icon" style="color: var(--color-co2)"></i>
-      <div class="sensor-name">Carbon Dioxide</div>
+      <div class="sensor-name">Gas Level (MQ135)</div>
       <div class="sensor-reading">
         <span id="ui-co2">--</span>
-        <span class="sensor-unit"> ppm</span>
+        <span class="sensor-unit"> raw</span>
       </div>
       <div class="sensor-status" id="stat-co2">Awaiting Data</div>
     </div>
 
     <div class="sensor-card">
       <i class="fa-solid fa-wind sensor-icon" style="color: var(--color-o2)"></i>
-      <div class="sensor-name">Oxygen (O2)</div>
+      <div class="sensor-name">Blood Oxygen (SpO2)</div>
       <div class="sensor-reading">
         <span id="ui-o2">--</span>
         <span class="sensor-unit"> %</span>
@@ -392,12 +392,22 @@ body {
 
     <div class="sensor-card">
       <i class="fa-solid fa-vial-virus sensor-icon" style="color: var(--color-voc)"></i>
-      <div class="sensor-name">Volatile Organics</div>
+      <div class="sensor-name">Particulate / AQI</div>
       <div class="sensor-reading">
         <span id="ui-voc">--</span>
-        <span class="sensor-unit"> ppm</span>
+        <span class="sensor-unit"> µg/m³</span>
       </div>
       <div class="sensor-status" id="stat-voc">Awaiting Data</div>
+    </div>
+
+    <div class="sensor-card">
+      <i class="fa-solid fa-smog sensor-icon" style="color: var(--color-co2)"></i>
+      <div class="sensor-name">US AQI Score</div>
+      <div class="sensor-reading">
+        <span id="ui-aqi">--</span>
+        <span class="sensor-unit"> /500</span>
+      </div>
+      <div class="sensor-status" id="stat-aqi">Awaiting Data</div>
     </div>
 
     <div class="sensor-card">
@@ -501,10 +511,10 @@ async function fetchLiveTelemetry() {
     if (!data || typeof data.bqi !== 'number') {
       document.getElementById('ui-bqi').innerText = '--';
       document.getElementById('ui-bqi-label').innerText = 'NO DATA';
-      ['ui-co2', 'ui-o2', 'ui-voc', 'ui-temp', 'ui-hum'].forEach(id => {
+      ['ui-co2', 'ui-o2', 'ui-voc', 'ui-aqi', 'ui-temp', 'ui-hum'].forEach(id => {
         document.getElementById(id).innerText = '--';
       });
-      ['stat-co2', 'stat-o2', 'stat-voc', 'stat-temp', 'stat-hum'].forEach(id => {
+      ['stat-co2', 'stat-o2', 'stat-voc', 'stat-aqi', 'stat-temp', 'stat-hum'].forEach(id => {
         document.getElementById(id).innerText = 'Awaiting Data';
         document.getElementById(id).style.color = '';
       });
@@ -512,13 +522,15 @@ async function fetchLiveTelemetry() {
     }
 
     // SAFE FALLBACKS
-    // The backend stores/returns already-converted field names that
-    // match the /api/history payload (co2, oxygen, voc, temperature,
-    // humidity, bqi).
+    // The backend's /api/live-metrics and /api/history payloads use the
+    // real sensor field names: mq135 (gas sensor raw value), dust
+    // (particulate density -> AQI), spo2 (blood oxygen %), temperature,
+    // humidity, bqi.
     document.getElementById('ui-bqi').innerText = data.bqi ?? '--';
-    document.getElementById('ui-co2').innerText = data.co2 ?? '--';
-    document.getElementById('ui-o2').innerText = data.oxygen ?? '--';
-    document.getElementById('ui-voc').innerText = data.voc ?? '--';
+    document.getElementById('ui-co2').innerText = data.mq135 ?? '--';
+    document.getElementById('ui-o2').innerText = data.spo2 ?? '--';
+    document.getElementById('ui-voc').innerText = data.dust ?? '--';
+    document.getElementById('ui-aqi').innerText = data.aqi ?? '--';
     document.getElementById('ui-temp').innerText = data.temperature ?? '--';
     document.getElementById('ui-hum').innerText = data.humidity ?? '--';
 
@@ -572,23 +584,30 @@ async function fetchLiveTelemetry() {
     liveChart.update();
 
     document.getElementById('stat-co2').innerText =
-      data.co2 < 600 ? "Normal" : "Elevated";
+      data.mq135 < 1000 ? "Normal" : "Elevated";
     document.getElementById('stat-co2').style.color =
-      data.co2 < 600
+      data.mq135 < 1000
         ? "var(--color-excellent)"
         : "var(--color-moderate)";
 
     document.getElementById('stat-o2').innerText =
-      data.oxygen > 19.5 ? "Optimal" : "Low";
+      data.spo2 >= 95 ? "Optimal" : "Low";
     document.getElementById('stat-o2').style.color =
-      data.oxygen > 19.5
+      data.spo2 >= 95
         ? "var(--color-excellent)"
         : "var(--color-vpoor)";
 
     document.getElementById('stat-voc').innerText =
-      data.voc < 2.0 ? "Clear" : "Detected";
+      data.dust < 35.4 ? "Clear" : "Detected";
     document.getElementById('stat-voc').style.color =
-      data.voc < 2.0
+      data.dust < 35.4
+        ? "var(--color-excellent)"
+        : "var(--color-moderate)";
+
+    document.getElementById('stat-aqi').innerText =
+      data.aqi <= 100 ? "Healthy" : "Unhealthy";
+    document.getElementById('stat-aqi').style.color =
+      data.aqi <= 100
         ? "var(--color-excellent)"
         : "var(--color-moderate)";
 
