@@ -169,9 +169,10 @@ tr:hover td { background: rgba(255,255,255,0.02); }
             <th>Timestamp</th>
             <th>BQI Score</th>
             <th>Status</th>
-            <th>CO2 (ppm)</th>
-            <th>VOC (ppm)</th>
-            <th>O2 (%)</th>
+            <th>MQ135 (raw)</th>
+            <th>Dust (µg/m³)</th>
+            <th>AQI</th>
+            <th>SpO2 (%)</th>
             <th>Temp (°C)</th>
             <th>Humidity (%)</th>
           </tr>
@@ -243,9 +244,10 @@ async function loadHistoryTable() {
       }
 
       // USE REAL DATABASE VALUES
-      const co2 = row.co2 ?? '--';
-      const voc = row.voc ?? '--';
-      const oxygen = row.oxygen ?? '--';
+      const mq135 = row.mq135 ?? '--';
+      const dust = row.dust ?? '--';
+      const aqi = row.aqi ?? '--';
+      const spo2 = row.spo2 ?? '--';
       const temperature = row.temperature ?? '--';
       const humidity = row.humidity ?? '--';
 
@@ -254,9 +256,10 @@ async function loadHistoryTable() {
         time: localTime,
         bqi: row.bqi,
         status: statusText,
-        co2,
-        voc,
-        oxygen,
+        mq135,
+        dust,
+        aqi,
+        spo2,
         temperature,
         humidity
       });
@@ -275,9 +278,10 @@ async function loadHistoryTable() {
         <td style="font-weight:600;">
           ${statusText}
         </td>
-        <td>${co2}</td>
-        <td>${voc}</td>
-        <td>${oxygen}</td>
+        <td>${mq135}</td>
+        <td>${dust}</td>
+        <td>${aqi}</td>
+        <td>${spo2}</td>
         <td>${temperature}</td>
         <td>${humidity}</td>
       `;
@@ -289,7 +293,7 @@ async function loadHistoryTable() {
     console.error("Error fetching history:", error);
     document.getElementById('table-body').innerHTML = `
       <tr>
-        <td colspan="8" style="text-align:center;">
+        <td colspan="9" style="text-align:center;">
           Failed to load data from uplink.
         </td>
       </tr>
@@ -305,11 +309,11 @@ function exportToExcel() {
   }
 
   // CSV Headers
-  let csvContent = "Timestamp,BQI Score,Status,CO2 (ppm),VOC (ppm),Oxygen (%),Temperature (C),Humidity (%)\n";
+  let csvContent = "Timestamp,BQI Score,Status,MQ135 (raw),Dust (ug/m3),AQI,SpO2 (%),Temperature (C),Humidity (%)\n";
 
   // Add rows
   globalData.forEach(row => {
-    let rowData = `${row.time},${row.bqi},${row.status},${row.co2},${row.voc},${row.oxygen},${row.temperature},${row.humidity}`;
+    let rowData = `${row.time},${row.bqi},${row.status},${row.mq135},${row.dust},${row.aqi},${row.spo2},${row.temperature},${row.humidity}`;
     csvContent += rowData + "\n";
   });
 
