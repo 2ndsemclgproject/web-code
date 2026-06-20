@@ -391,20 +391,24 @@
                 <div class="block-title"><i class="fa-solid fa-microchip"></i> Live Sensor Readings</div>
                 <div class="sensors-grid">
                     <div class="sensor-card">
-                        <div class="sensor-header"><span>CO2 Level</span><i class="fa-solid fa-cloud" style="color:var(--color-co2)"></i></div>
-                        <div class="sensor-value"><span id="ui-co2">--</span> <span style="font-size:0.8rem; color:#94a3b8">ppm</span></div>
+                        <div class="sensor-header"><span>Gas Level (MQ135)</span><i class="fa-solid fa-cloud" style="color:var(--color-co2)"></i></div>
+                        <div class="sensor-value"><span id="ui-co2">--</span> <span style="font-size:0.8rem; color:#94a3b8">raw</span></div>
                     </div>
                     <div class="sensor-card">
-                        <div class="sensor-header"><span>Oxygen (O2)</span><i class="fa-solid fa-wind" style="color:var(--color-o2)"></i></div>
+                        <div class="sensor-header"><span>Blood Oxygen (SpO2)</span><i class="fa-solid fa-wind" style="color:var(--color-o2)"></i></div>
                         <div class="sensor-value"><span id="ui-o2">--</span> <span style="font-size:0.8rem; color:#94a3b8">%</span></div>
                     </div>
                     <div class="sensor-card">
-                        <div class="sensor-header"><span>VOCs</span><i class="fa-solid fa-vial-virus" style="color:var(--color-voc)"></i></div>
-                        <div class="sensor-value"><span id="ui-voc">--</span> <span style="font-size:0.8rem; color:#94a3b8">ppm</span></div>
+                        <div class="sensor-header"><span>Particulate / AQI</span><i class="fa-solid fa-vial-virus" style="color:var(--color-voc)"></i></div>
+                        <div class="sensor-value"><span id="ui-voc">--</span> <span style="font-size:0.8rem; color:#94a3b8">µg/m³</span></div>
                     </div>
                     <div class="sensor-card">
                         <div class="sensor-header"><span>Temperature</span><i class="fa-solid fa-temperature-half" style="color:var(--color-temp)"></i></div>
                         <div class="sensor-value"><span id="ui-temp">--</span> <span style="font-size:0.8rem; color:#94a3b8">°C</span></div>
+                    </div>
+                    <div class="sensor-card">
+                        <div class="sensor-header"><span>Humidity</span><i class="fa-solid fa-droplet" style="color:var(--color-o2)"></i></div>
+                        <div class="sensor-value"><span id="ui-hum">--</span> <span style="font-size:0.8rem; color:#94a3b8">%</span></div>
                     </div>
                 </div>
                 
@@ -515,6 +519,7 @@
                 document.getElementById('ui-o2').innerText = data.spo2;
                 document.getElementById('ui-voc').innerText = data.dust;
                 document.getElementById('ui-temp').innerText = data.temperature;
+                document.getElementById('ui-hum').innerText = data.humidity;
 
                 // --- ACCORDION DATA UPDATES ---
                 const bqi = data.bqi;
