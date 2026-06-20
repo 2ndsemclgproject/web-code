@@ -83,33 +83,11 @@ body {
   border-left: 4px solid var(--color-o2);
   background: linear-gradient(90deg, rgba(14, 165, 233, 0.1) 0%, transparent 100%);
 }
-.device-status {
-  margin-top: auto;
-  padding: 1.5rem;
-  background: rgba(0,0,0,0.2);
-  border-radius: 16px;
-  border: 1px solid rgba(255,255,255,0.03);
-}
-.device-status h3 {
-  font-size: 0.9rem;
-  color: var(--text-muted);
-  margin-bottom: 10px;
-}
 .status-dot {
   color: var(--color-excellent);
   font-size: 0.7rem;
   margin-right: 5px;
   animation: pulse-dot 2s infinite;
-}
-.device-info {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  margin-top: 10px;
-  line-height: 1.6;
-}
-.device-info span {
-  color: var(--text-main);
-  display: block;
 }
 .main-content {
   flex: 1;
@@ -310,19 +288,6 @@ body {
       <i class="fa-solid fa-circle-info"></i> About
     </a>
   </ul>
-  <div class="device-status">
-    <h3>Hardware Uplink</h3>
-    <div style="font-weight:600;">
-      <i class="fa-solid fa-circle status-dot"></i>
-      Receiving Data
-    </div>
-    <div class="device-info">
-      Ping:
-      <span id="ui-ping">-- ms</span>
-      Last Packet:
-      <span id="ui-time">--:--:--</span>
-    </div>
-  </div>
 </aside>
 
 <main class="main-content">
@@ -491,51 +456,65 @@ const liveChart = new Chart(ctx, {
 const API_URL = 'https://api.breathiq.qzz.io/api/live-metrics';
 
 async function fetchLiveTelemetry() {
-  const fetchStart = Date.now();
   try {
     const response = await fetch(API_URL);
     const data = await response.json();
-    const ping = Date.now() - fetchStart;
 
-    document.getElementById('ui-ping').innerText = ping + ' ms';
+    // Each sensor field is rendered independently below: a field shows
+    // its real value if the backend sent a number, otherwise it falls
+    // back to "Awaiting Data" on its own. Nothing here hides a field
+    // just because some other field (e.g. bqi) hasn't arrived yet.
+    const isNum = v => typeof v === 'number' && !Number.isNaN(v);
 
-    const now = new Date();
-    document.getElementById('ui-time').innerText =
-      now.toLocaleTimeString('en-US', { hour12: false });
-
-    // If the uplink hasn't posted a packet yet (e.g. fresh deploy / cold
-    // start) the API can return an empty object. Bail out early instead
-    // of letting every "undefined < threshold" comparison below silently
-    // evaluate to false and paint the dashboard as if everything were
-    // "Severe" / "Elevated" / "Low".
-    if (!data || typeof data.bqi !== 'number') {
-      document.getElementById('ui-bqi').innerText = '--';
-      document.getElementById('ui-bqi-label').innerText = 'NO DATA';
-      ['ui-co2', 'ui-o2', 'ui-voc', 'ui-aqi', 'ui-temp', 'ui-hum'].forEach(id => {
-        document.getElementById(id).innerText = '--';
-      });
-      ['stat-co2', 'stat-o2', 'stat-voc', 'stat-aqi', 'stat-temp', 'stat-hum'].forEach(id => {
-        document.getElementById(id).innerText = 'Awaiting Data';
-        document.getElementById(id).style.color = '';
-      });
-      return;
+    function setReading(valueId, statusId, value, statusFn) {
+      const valueEl = document.getElementById(valueId);
+      const statusEl = statusId ? document.getElementById(statusId) : null;
+      if (isNum(value)) {
+        valueEl.innerText = value;
+        if (statusEl) {
+          const [text, color] = statusFn(value);
+          statusEl.innerText = text;
+          statusEl.style.color = color;
+        }
+      } else {
+        valueEl.innerText = '--';
+        if (statusEl) {
+          statusEl.innerText = 'Awaiting Data';
+          statusEl.style.color = '';
+        }
+      }
     }
 
-    // SAFE FALLBACKS
-    // The backend's /api/live-metrics and /api/history payloads use the
-    // real sensor field names: mq135 (gas sensor raw value), dust
-    // (particulate density -> AQI), spo2 (blood oxygen %), temperature,
-    // humidity, bqi.
-    document.getElementById('ui-bqi').innerText = data.bqi ?? '--';
-    document.getElementById('ui-co2').innerText = data.mq135 ?? '--';
-    document.getElementById('ui-o2').innerText = data.spo2 ?? '--';
-    document.getElementById('ui-voc').innerText = data.dust ?? '--';
-    document.getElementById('ui-aqi').innerText = data.aqi ?? '--';
-    document.getElementById('ui-temp').innerText = data.temperature ?? '--';
-    document.getElementById('ui-hum').innerText = data.humidity ?? '--';
+    setReading('ui-co2', 'stat-co2', data.mq135, v =>
+      v < 1000 ? ["Normal", "var(--color-excellent)"] : ["Elevated", "var(--color-moderate)"]);
+
+    setReading('ui-o2', 'stat-o2', data.spo2, v =>
+      v >= 95 ? ["Optimal", "var(--color-excellent)"] : ["Low", "var(--color-vpoor)"]);
+
+    setReading('ui-voc', 'stat-voc', data.dust, v =>
+      v < 35.4 ? ["Clear", "var(--color-excellent)"] : ["Detected", "var(--color-moderate)"]);
+
+    setReading('ui-aqi', 'stat-aqi', data.aqi, v =>
+      v <= 100 ? ["Healthy", "var(--color-excellent)"] : ["Unhealthy", "var(--color-moderate)"]);
+
+    setReading('ui-temp', 'stat-temp', data.temperature, v =>
+      (v >= 18 && v <= 28) ? ["Comfortable", "var(--color-excellent)"] : ["Out of Range", "var(--color-moderate)"]);
+
+    setReading('ui-hum', 'stat-hum', data.humidity, v =>
+      (v >= 30 && v <= 60) ? ["Comfortable", "var(--color-excellent)"] : ["Out of Range", "var(--color-moderate)"]);
 
     const bqiRing = document.getElementById('ui-ring');
     const bqiLabel = document.getElementById('ui-bqi-label');
+
+    if (!isNum(data.bqi)) {
+      document.getElementById('ui-bqi').innerText = '--';
+      bqiLabel.innerText = 'NO DATA';
+      bqiRing.style.borderColor = '';
+      bqiLabel.style.color = '';
+      return;
+    }
+
+    document.getElementById('ui-bqi').innerText = data.bqi;
 
     let color = '';
     if (data.bqi <= 50) {
@@ -567,7 +546,7 @@ async function fetchLiveTelemetry() {
     bqiLabel.style.color = color;
 
     // Include hours so labels stay meaningful past a 1-minute window
-    const chartTime = now.toLocaleTimeString('en-US', {
+    const chartTime = new Date().toLocaleTimeString('en-US', {
       hour: '2-digit',
       minute: '2-digit',
       second: '2-digit'
@@ -582,48 +561,6 @@ async function fetchLiveTelemetry() {
     }
 
     liveChart.update();
-
-    document.getElementById('stat-co2').innerText =
-      data.mq135 < 1000 ? "Normal" : "Elevated";
-    document.getElementById('stat-co2').style.color =
-      data.mq135 < 1000
-        ? "var(--color-excellent)"
-        : "var(--color-moderate)";
-
-    document.getElementById('stat-o2').innerText =
-      data.spo2 >= 95 ? "Optimal" : "Low";
-    document.getElementById('stat-o2').style.color =
-      data.spo2 >= 95
-        ? "var(--color-excellent)"
-        : "var(--color-vpoor)";
-
-    document.getElementById('stat-voc').innerText =
-      data.dust < 35.4 ? "Clear" : "Detected";
-    document.getElementById('stat-voc').style.color =
-      data.dust < 35.4
-        ? "var(--color-excellent)"
-        : "var(--color-moderate)";
-
-    document.getElementById('stat-aqi').innerText =
-      data.aqi <= 100 ? "Healthy" : "Unhealthy";
-    document.getElementById('stat-aqi').style.color =
-      data.aqi <= 100
-        ? "var(--color-excellent)"
-        : "var(--color-moderate)";
-
-    document.getElementById('stat-temp').innerText =
-      (data.temperature >= 18 && data.temperature <= 28) ? "Comfortable" : "Out of Range";
-    document.getElementById('stat-temp').style.color =
-      (data.temperature >= 18 && data.temperature <= 28)
-        ? "var(--color-excellent)"
-        : "var(--color-moderate)";
-
-    document.getElementById('stat-hum').innerText =
-      (data.humidity >= 30 && data.humidity <= 60) ? "Comfortable" : "Out of Range";
-    document.getElementById('stat-hum').style.color =
-      (data.humidity >= 30 && data.humidity <= 60)
-        ? "var(--color-excellent)"
-        : "var(--color-moderate)";
   }
   catch (error) {
     console.error("Uplink failed:", error);
