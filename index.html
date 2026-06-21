@@ -22,6 +22,7 @@
             --color-moderate: #f59e0b;
             --color-poor: #f97316;
             --color-vpoor: #f43f5e;
+            --color-offline: #64748b;
             
             --color-co2: #f43f5e;
             --color-o2: #0ea5e9;
@@ -59,6 +60,7 @@
         .nav-item.active { border-left: 4px solid var(--color-o2); background: linear-gradient(90deg, rgba(14, 165, 233, 0.1) 0%, transparent 100%); }
 
         .status-dot { color: var(--color-excellent); font-size: 0.7rem; margin-right: 5px; }
+        .status-dot.offline { color: var(--color-offline); animation: none; }
 
         /* --- MAIN CONTENT --- */
         .main-content { flex: 1; padding: 2rem 3rem; display: flex; flex-direction: column; gap: 1.5rem; height: 100vh; overflow-y: auto;}
@@ -67,7 +69,8 @@
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
         .header-title h1 { font-size: 1.8rem; font-weight: 600; }
         .header-title p { color: var(--text-muted); font-size: 0.9rem; margin-top: 5px; }
-        .connection-badge { color: var(--color-excellent); font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 8px;}
+        .connection-badge { color: var(--color-excellent); font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 8px; transition: color 0.3s;}
+        .connection-badge.offline { color: var(--color-offline); }
 
         /* --- INTERACTIVE ACCORDION ROW --- */
         .interactive-row {
@@ -115,7 +118,6 @@
         .dv-label { font-size: 1rem; font-weight: 600;}
 
         /* --- EXPANDED VIEW 1: BQI GAUGE --- */
-        /* --- EXPANDED VIEW 1: BQI GAUGE --- */
         .gauge-container { width: 200px; height: 100px; position: relative; overflow: hidden; margin-bottom: 20px;}
         .gauge-background { width: 200px; height: 200px; border-radius: 50%; position: absolute; top: 0; border: 15px solid rgba(255,255,255,0.05); }
         .gauge-fill { width: 200px; height: 200px; border-radius: 50%; position: absolute; top: 0; border: 15px solid var(--color-excellent); border-bottom-color: transparent; border-right-color: transparent; transform: rotate(-135deg); transition: transform 1s cubic-bezier(0.25, 1, 0.5, 1);}
@@ -123,14 +125,12 @@
         .gauge-score { font-size: 3rem; font-weight: 800; line-height: 1;}
         /* --- EXPANDED VIEW 2: MEDICAL LUNGS --- */
         .lung-container{
-    display:flex;
-    align-items:center;
-    gap:20px;
-
-    width:100%;
-
-    margin-top:35px;
-}
+            display:flex;
+            align-items:center;
+            gap:20px;
+            width:100%;
+            margin-top:35px;
+        }
 
         .lung-icon{
             font-size:4.5rem;
@@ -139,10 +139,10 @@
         }
 
         .lung-text{
-    flex:1;
-    text-align:left;
-    margin-top:0px;
-}
+            flex:1;
+            text-align:left;
+            margin-top:0px;
+        }
 
         .lung-text h3{
             margin:0 0 8px 0;
@@ -167,16 +167,18 @@
         .timer-container { display: flex; align-items: center; gap: 20px;}
         .timer-ring { width: 90px; height: 90px; border-radius: 50%; border: 4px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; position: relative;}
         .timer-ring::after { content: ''; position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 4px solid var(--timer-color, var(--color-excellent)); border-top-color: transparent; animation: spin 4s linear infinite; }
+        .timer-ring.paused::after { animation-play-state: paused; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
         .timer-val { font-size: 1.2rem; font-weight: 700; color: var(--text-main);}
 
         /* --- EXPANDED VIEW 4: BLUEPRINT --- */
         .rec-list { list-style: none; display: flex; flex-direction: column; gap: 12px; width: 100%;}
         .rec-item { display: flex; align-items: flex-start; gap: 10px; font-size: 0.85rem; color: var(--text-muted); background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px;}
-        .tag { padding: 3px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px;}
+        .tag { padding: 3px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px; flex-shrink: 0;}
         .tag-prev { background: rgba(14, 165, 233, 0.2); color: var(--color-o2);}
         .tag-act { background: rgba(245, 158, 11, 0.2); color: var(--color-moderate);}
         .tag-emg { background: rgba(244, 63, 94, 0.2); color: var(--color-vpoor);}
+        .tag-sys { background: rgba(100, 116, 139, 0.2); color: var(--color-offline);}
 
         /* --- REST OF GRID --- */
         .glass-panel-static { background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 20px; padding: 1.5rem; display: flex; flex-direction: column;}
@@ -185,7 +187,8 @@
         .sensors-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
         .sensor-card { background: rgba(0,0,0,0.2); border-radius: 12px; padding: 1rem; display: flex; flex-direction: column; gap: 5px; border: 1px solid rgba(255,255,255,0.03); }
         .sensor-header { display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); font-size: 0.85rem; }
-        .sensor-value { font-size: 1.4rem; font-weight: 700; }
+        .sensor-value { font-size: 1.4rem; font-weight: 700; transition: color 0.3s;}
+        .sensor-value.offline-text { color: var(--color-offline) !important; font-size: 1rem; font-weight: 600; }
         .chart-container { flex: 1; min-height: 250px; width: 100%; position: relative; }
         
         /* --- BOTTOM ROW (GUIDE & ALERTS) --- */
@@ -202,6 +205,7 @@
         /* Recent Alerts */
         .alert-list { display: flex; flex-direction: column; gap: 12px; margin-top: 10px;}
         .alert-item { display: flex; gap: 10px; font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;}
+        .alert-item .alert-time { display: block; font-size: 0.75rem; color: rgba(148, 163, 184, 0.6); margin-top: 2px; }
         .view-all-link { display: block; text-align: right; color: var(--color-o2); text-decoration: none; font-size: 0.85rem; font-weight: 600; margin-top: 15px;}
         .view-all-link:hover { text-decoration: underline; }
 
@@ -209,42 +213,32 @@
         .live-redirect { display: block; text-align: center; margin-top: 1.5rem; font-size: 0.8rem; color: var(--text-muted); text-decoration: none; transition: color 0.3s; }
         .live-redirect:hover { color: var(--color-o2); }
         .impact-preview{
-    margin-top:12px;
-    color:var(--text-muted);
-    font-size:0.85rem;
-    line-height:1.6;
-}
+            margin-top:12px;
+            color:var(--text-muted);
+            font-size:0.85rem;
+            line-height:1.6;
+        }
 
-.impact-btn{
-    display:inline-flex;
-    align-items:center;
-    gap:10px;
+        .impact-btn{
+            display:inline-flex;
+            align-items:center;
+            gap:10px;
+            margin-top:15px;
+            padding:10px 16px;
+            border-radius:12px;
+            text-decoration:none;
+            background:rgba(14,165,233,0.15);
+            border:1px solid rgba(14,165,233,0.3);
+            color:#0ea5e9;
+            font-size:0.85rem;
+            font-weight:600;
+            transition:0.3s ease;
+        }
 
-    margin-top:15px;
-
-    padding:10px 16px;
-
-    border-radius:12px;
-
-    text-decoration:none;
-
-    background:rgba(14,165,233,0.15);
-
-    border:1px solid rgba(14,165,233,0.3);
-
-    color:#0ea5e9;
-
-    font-size:0.85rem;
-
-    font-weight:600;
-
-    transition:0.3s ease;
-}
-
-.impact-btn:hover{
-    transform:translateY(-2px);
-    background:rgba(14,165,233,0.25);
-}
+        .impact-btn:hover{
+            transform:translateY(-2px);
+            background:rgba(14,165,233,0.25);
+        }
     </style>
 </head>
 <body>
@@ -268,7 +262,7 @@
                 <h1>Dashboard Overview</h1>
                 <p>Hover over the metric cards below for deep medical analysis.</p>
             </div>
-            <div class="connection-badge"><i class="fa-solid fa-wifi"></i> Connected & Logging</div>
+            <div class="connection-badge" id="connection-badge"><i class="fa-solid fa-wifi"></i> <span id="connection-text">Connecting...</span></div>
         </header>
 
         <!-- TOP ROW: THE INTERACTIVE ACCORDION -->
@@ -308,33 +302,23 @@
                 </div>
 
                 <div class="expanded-view">
-
-    <div class="lung-container">
-
-        <i class="fa-solid fa-lungs lung-icon" id="ev-lung-icon"></i>
-
-        <div class="lung-text">
-
-            <h3 id="ev-status-title">Analyzing...</h3>
-
-            <p id="ev-status-desc">
-                Reading environmental telemetry...
-            </p>
-
-            <div class="impact-preview">
-                Click below for a complete medical and environmental impact analysis based on the detected air quality conditions.
-            </div>
-
-            <a href="health-impact" class="impact-btn">
-                <i class="fa-solid fa-book-medical"></i>
-                Detailed Health Impact Analysis →
-            </a>
-
-        </div>
-
-    </div>
-
-</div>
+                    <div class="lung-container">
+                        <i class="fa-solid fa-lungs lung-icon" id="ev-lung-icon"></i>
+                        <div class="lung-text">
+                            <h3 id="ev-status-title">Analyzing...</h3>
+                            <p id="ev-status-desc">
+                                Reading environmental telemetry...
+                            </p>
+                            <div class="impact-preview">
+                                Click below for a complete medical and environmental impact analysis based on the detected air quality conditions.
+                            </div>
+                            <a href="health-impact" class="impact-btn">
+                                <i class="fa-solid fa-book-medical"></i>
+                                Detailed Health Impact Analysis →
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- BLOCK 3: RISK / TIMER -->
@@ -370,7 +354,7 @@
 
                 <div class="expanded-view">
                     <ul class="rec-list" id="ev-rec-list">
-                        <li class="rec-item"><span class="tag tag-prev">SYSTEM</span> Waiting for sensor packet...</li>
+                        <li class="rec-item"><span class="tag tag-sys">SYSTEM</span> Waiting for sensor packet...</li>
                     </ul>
                 </div>
             </div>
@@ -384,23 +368,23 @@
                 <div class="sensors-grid">
                     <div class="sensor-card">
                         <div class="sensor-header"><span>Gas Level (MQ135)</span><i class="fa-solid fa-cloud" style="color:var(--color-co2)"></i></div>
-                        <div class="sensor-value"><span id="ui-co2">--</span> <span style="font-size:0.8rem; color:#94a3b8">raw</span></div>
+                        <div class="sensor-value"><span id="ui-co2">--</span> <span style="font-size:0.8rem; color:#94a3b8" id="ui-co2-unit">raw</span></div>
                     </div>
                     <div class="sensor-card">
                         <div class="sensor-header"><span>Blood Oxygen (SpO2)</span><i class="fa-solid fa-wind" style="color:var(--color-o2)"></i></div>
-                        <div class="sensor-value"><span id="ui-o2">--</span> <span style="font-size:0.8rem; color:#94a3b8">%</span></div>
+                        <div class="sensor-value"><span id="ui-o2">--</span> <span style="font-size:0.8rem; color:#94a3b8" id="ui-o2-unit">%</span></div>
                     </div>
                     <div class="sensor-card">
                         <div class="sensor-header"><span>Particulate / AQI</span><i class="fa-solid fa-vial-virus" style="color:var(--color-voc)"></i></div>
-                        <div class="sensor-value"><span id="ui-voc">--</span> <span style="font-size:0.8rem; color:#94a3b8">µg/m³</span></div>
+                        <div class="sensor-value"><span id="ui-voc">--</span> <span style="font-size:0.8rem; color:#94a3b8" id="ui-voc-unit">µg/m³</span></div>
                     </div>
                     <div class="sensor-card">
                         <div class="sensor-header"><span>Temperature</span><i class="fa-solid fa-temperature-half" style="color:var(--color-temp)"></i></div>
-                        <div class="sensor-value"><span id="ui-temp">--</span> <span style="font-size:0.8rem; color:#94a3b8">°C</span></div>
+                        <div class="sensor-value"><span id="ui-temp">--</span> <span style="font-size:0.8rem; color:#94a3b8" id="ui-temp-unit">°C</span></div>
                     </div>
                     <div class="sensor-card">
                         <div class="sensor-header"><span>Humidity</span><i class="fa-solid fa-droplet" style="color:var(--color-o2)"></i></div>
-                        <div class="sensor-value"><span id="ui-hum">--</span> <span style="font-size:0.8rem; color:#94a3b8">%</span></div>
+                        <div class="sensor-value"><span id="ui-hum">--</span> <span style="font-size:0.8rem; color:#94a3b8" id="ui-hum-unit">%</span></div>
                     </div>
                 </div>
                 
@@ -444,7 +428,7 @@
 
             <div class="glass-panel-static">
                 <div class="block-title">Recent Alerts</div>
-                <div class="alert-list">
+                <div class="alert-list" id="alert-list">
                     <div class="alert-item">
                         <i class="fa-solid fa-bell" style="color: var(--color-moderate); margin-top: 3px;"></i>
                         <div>Initializing medical sensor network...</div>
@@ -463,6 +447,15 @@
 
     <!-- JAVASCRIPT ENGINE -->
     <script>
+        // --- IST timestamp helper. Every displayed time on this page goes
+        // through this function so the dashboard always shows Asia/Kolkata
+        // time regardless of what timezone the visitor's device is set to. ---
+        function formatIST(date, opts) {
+            return date.toLocaleString('en-IN', Object.assign({ timeZone: 'Asia/Kolkata' }, opts));
+        }
+
+        const isNum = v => typeof v === 'number' && !Number.isNaN(v);
+
         // --- 1. Chart.js Setup ---
         const ctx = document.getElementById('bqiChart').getContext('2d');
         let gradient = ctx.createLinearGradient(0, 0, 0, 300);
@@ -491,13 +484,77 @@
                 const response = await fetch(HISTORY_API_URL);
                 const historyData = await response.json();
                 bqiChart.data.labels = []; bqiChart.data.datasets[0].data = [];
-                historyData.forEach(point => {
-                    const localTime = new Date(point.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-                    bqiChart.data.labels.push(localTime);
+
+                // History can span multiple days, so every label carries an
+                // explicit IST date + time instead of just "hour:minute" -
+                // that's what made the x-axis jump around out of order before.
+                const sorted = historyData.slice().sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+                sorted.forEach(point => {
+                    const d = new Date(point.timestamp);
+                    const label = formatIST(d, { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', hour12: true });
+                    bqiChart.data.labels.push(label);
                     bqiChart.data.datasets[0].data.push(point.bqi);
                 });
                 bqiChart.update();
             } catch (error) { console.error("Error fetching history:", error); }
+        }
+
+        // --- Helper: put the whole dashboard into a clear "device offline" state ---
+        function setOfflineState() {
+            const badge = document.getElementById('connection-badge');
+            badge.classList.add('offline');
+            document.getElementById('connection-text').innerText = 'Device Offline';
+
+            ['ui-co2', 'ui-o2', 'ui-voc', 'ui-temp', 'ui-hum'].forEach(id => {
+                const el = document.getElementById(id);
+                el.innerText = '--';
+                el.parentElement.classList.add('offline-text');
+            });
+
+            document.getElementById('dv-bqi-val').innerText = '--';
+            document.getElementById('dv-bqi-val').style.color = 'var(--color-offline)';
+            document.getElementById('dv-bqi-label').innerText = 'NO DATA';
+            document.getElementById('dv-bqi-label').style.color = 'var(--color-offline)';
+
+            document.getElementById('ev-bqi-val').innerText = '--';
+            document.getElementById('ev-bqi-label').innerText = 'DEVICE OFFLINE';
+            document.getElementById('ev-bqi-label').style.color = 'var(--color-offline)';
+            document.getElementById('ui-gauge-fill').style.borderColor = 'var(--color-offline)';
+
+            document.getElementById('dv-status-icon').style.color = 'var(--color-offline)';
+            document.getElementById('dv-status-text').innerText = 'Offline';
+            document.getElementById('dv-status-text').style.color = 'var(--color-offline)';
+            document.getElementById('ev-lung-icon').style.color = 'var(--color-offline)';
+            document.getElementById('ev-status-title').innerText = 'Device Offline';
+            document.getElementById('ev-status-title').style.color = 'var(--color-offline)';
+            document.getElementById('ev-status-desc').innerText = 'No sensor packet has been received yet. Readings will appear automatically once the ESP32 hardware comes back online.';
+
+            document.getElementById('dv-risk-icon').style.color = 'var(--color-offline)';
+            document.getElementById('dv-risk-text').innerText = 'Unknown';
+            document.getElementById('dv-risk-text').style.color = 'var(--color-offline)';
+            document.getElementById('ev-timer-val').innerText = '--';
+            document.getElementById('ev-timer-val').style.color = 'var(--color-offline)';
+            document.getElementById('ev-timer-ring').classList.add('paused');
+            document.getElementById('ev-timer-ring').style.setProperty('--timer-color', 'var(--color-offline)');
+            document.getElementById('ev-timer-icon').className = 'fa-solid fa-plug-circle-xmark';
+            document.getElementById('ev-timer-icon').style.color = 'var(--color-offline)';
+
+            document.getElementById('ev-rec-list').innerHTML =
+                '<li class="rec-item"><span class="tag tag-sys">SYSTEM</span> Device offline &mdash; no live recommendations available.</li>';
+
+            document.getElementById('dynamic-guide-text').innerHTML =
+                'No live data right now. The dashboard will update as soon as the device reconnects.';
+        }
+
+        function setOnlineState() {
+            const badge = document.getElementById('connection-badge');
+            badge.classList.remove('offline');
+            document.getElementById('connection-text').innerText = 'Connected & Logging';
+            document.getElementById('ev-timer-ring').classList.remove('paused');
+            ['ui-co2', 'ui-o2', 'ui-voc', 'ui-temp', 'ui-hum'].forEach(id => {
+                document.getElementById(id).parentElement.classList.remove('offline-text');
+            });
         }
 
         // --- 3. Medical UI Logic Engine (Runs every 5 secs) ---
@@ -505,13 +562,34 @@
             try {
                 const response = await fetch(LIVE_API_URL);
                 const data = await response.json();
-                
-                // Update Static Sensors
-                document.getElementById('ui-co2').innerText = data.mq135;
-                document.getElementById('ui-o2').innerText = data.spo2;
-                document.getElementById('ui-voc').innerText = data.dust;
-                document.getElementById('ui-temp').innerText = data.temperature;
-                document.getElementById('ui-hum').innerText = data.humidity;
+
+                // The backend starts with latestData = {} until the first
+                // sensor packet ever arrives, and an ESP32 that's powered
+                // off simply stops POSTing - the object just goes stale.
+                // bqi is the one field every real packet always has, so its
+                // absence is the reliable "nothing is connected" signal.
+                if (!isNum(data.bqi)) {
+                    setOfflineState();
+                    return;
+                }
+
+                setOnlineState();
+
+                // Update Static Sensors (each one individually guarded so a
+                // single missing field can't blank out fields that did arrive)
+                function setSensor(valueId, value, fallbackUnitId) {
+                    const el = document.getElementById(valueId);
+                    if (isNum(value)) {
+                        el.innerText = value;
+                    } else {
+                        el.innerText = '--';
+                    }
+                }
+                setSensor('ui-co2', data.mq135);
+                setSensor('ui-o2', data.spo2);
+                setSensor('ui-voc', data.dust);
+                setSensor('ui-temp', data.temperature);
+                setSensor('ui-hum', data.humidity);
 
                 // --- ACCORDION DATA UPDATES ---
                 const bqi = data.bqi;
@@ -532,104 +610,74 @@
                 let lungDesc = '';
                 let timerText = '';
                 let riskText = '';
-                let recHtml = '';
-
-                // Determine Worst Pollutant (For Blueprint Logic)
-                let worstGas = 'none';
-                if (bqi < 81) {
-                    if (data.mq135 > 1000) worstGas = 'co2';
-                    else if (data.dust > 1.0) worstGas = 'voc';
-                    else if (data.spo2 < 95) worstGas = 'o2';
-                }
 
                 // Apply Medical Thresholds
                 if (bqi <= 50) {
-    color = '#4CAF50';
-    label = 'Good';
-    riskText = 'Low Risk';
-
-    lungTitle = "Healthy Air Quality";
-    lungDesc = "Air quality is excellent. Minimal impact on health.";
-    timerText = "UNLIMITED";
-
-    document.getElementById('ev-timer-ring').style.animationPlayState = 'paused';
-    document.getElementById('ev-timer-icon').className = "fa-solid fa-shield-check";
-    document.getElementById('ev-timer-icon').style.color = color;
-}
-
-else if (bqi <= 100) {
-    color = '#8BC34A';
-    label = 'Satisfactory';
-    riskText = 'Minimal Risk';
-
-    lungTitle = "Acceptable Air Quality";
-    lungDesc = "Air quality is acceptable. Minor discomfort may occur for sensitive individuals.";
-    timerText = "> 8 HOURS";
-
-    document.getElementById('ev-timer-ring').style.animationPlayState = 'running';
-    document.getElementById('ev-timer-icon').className = "fa-solid fa-hourglass-half";
-    document.getElementById('ev-timer-icon').style.color = color;
-}
-
-else if (bqi <= 200) {
-    color = '#FFEB3B';
-    label = 'Moderate';
-    riskText = 'Medium Risk';
-
-    lungTitle = "Breathing Discomfort";
-    lungDesc = "People with respiratory diseases may experience discomfort.";
-
-    timerText = "04h 30m";
-
-    document.getElementById('ev-timer-ring').style.animationPlayState = 'running';
-    document.getElementById('ev-timer-icon').className = "fa-solid fa-hourglass-half";
-    document.getElementById('ev-timer-icon').style.color = color;
-}
-
-else if (bqi <= 300) {
-    color = '#FF9800';
-    label = 'Poor';
-    riskText = 'High Risk';
-
-    lungTitle = "Respiratory Stress";
-    lungDesc = "Breathing discomfort likely on prolonged exposure.";
-
-    timerText = "02h 00m";
-
-    document.getElementById('ev-timer-ring').style.animationPlayState = 'running';
-    document.getElementById('ev-timer-icon').className = "fa-solid fa-triangle-exclamation";
-    document.getElementById('ev-timer-icon').style.color = color;
-}
-
-else if (bqi <= 400) {
-    color = '#F44336';
-    label = 'Very Poor';
-    riskText = 'Very High Risk';
-
-    lungTitle = "Serious Respiratory Impact";
-    lungDesc = "Respiratory illness may occur with prolonged exposure.";
-
-    timerText = "00h 30m";
-
-    document.getElementById('ev-timer-ring').style.animationPlayState = 'running';
-    document.getElementById('ev-timer-icon').className = "fa-solid fa-radiation";
-    document.getElementById('ev-timer-icon').style.color = color;
-}
-
-else {
-    color = '#8B0000';
-    label = 'Severe';
-    riskText = 'Hazardous';
-
-    lungTitle = "Emergency Conditions";
-    lungDesc = "Healthy people may experience serious health effects. Immediate action required.";
-
-    timerText = "00h 05m";
-
-    document.getElementById('ev-timer-ring').style.animationPlayState = 'running';
-    document.getElementById('ev-timer-icon').className = "fa-solid fa-skull-crossbones";
-    document.getElementById('ev-timer-icon').style.color = color;
-}
+                    color = '#4CAF50';
+                    label = 'Good';
+                    riskText = 'Low Risk';
+                    lungTitle = "Healthy Air Quality";
+                    lungDesc = "Air quality is excellent. Minimal impact on health.";
+                    timerText = "UNLIMITED";
+                    document.getElementById('ev-timer-ring').classList.add('paused');
+                    document.getElementById('ev-timer-icon').className = "fa-solid fa-shield-check";
+                    document.getElementById('ev-timer-icon').style.color = color;
+                }
+                else if (bqi <= 100) {
+                    color = '#8BC34A';
+                    label = 'Satisfactory';
+                    riskText = 'Minimal Risk';
+                    lungTitle = "Acceptable Air Quality";
+                    lungDesc = "Air quality is acceptable. Minor discomfort may occur for sensitive individuals.";
+                    timerText = "> 8 HOURS";
+                    document.getElementById('ev-timer-ring').classList.remove('paused');
+                    document.getElementById('ev-timer-icon').className = "fa-solid fa-hourglass-half";
+                    document.getElementById('ev-timer-icon').style.color = color;
+                }
+                else if (bqi <= 200) {
+                    color = '#FFEB3B';
+                    label = 'Moderate';
+                    riskText = 'Medium Risk';
+                    lungTitle = "Breathing Discomfort";
+                    lungDesc = "People with respiratory diseases may experience discomfort.";
+                    timerText = "04h 30m";
+                    document.getElementById('ev-timer-ring').classList.remove('paused');
+                    document.getElementById('ev-timer-icon').className = "fa-solid fa-hourglass-half";
+                    document.getElementById('ev-timer-icon').style.color = color;
+                }
+                else if (bqi <= 300) {
+                    color = '#FF9800';
+                    label = 'Poor';
+                    riskText = 'High Risk';
+                    lungTitle = "Respiratory Stress";
+                    lungDesc = "Breathing discomfort likely on prolonged exposure.";
+                    timerText = "02h 00m";
+                    document.getElementById('ev-timer-ring').classList.remove('paused');
+                    document.getElementById('ev-timer-icon').className = "fa-solid fa-triangle-exclamation";
+                    document.getElementById('ev-timer-icon').style.color = color;
+                }
+                else if (bqi <= 400) {
+                    color = '#F44336';
+                    label = 'Very Poor';
+                    riskText = 'Very High Risk';
+                    lungTitle = "Serious Respiratory Impact";
+                    lungDesc = "Respiratory illness may occur with prolonged exposure.";
+                    timerText = "00h 30m";
+                    document.getElementById('ev-timer-ring').classList.remove('paused');
+                    document.getElementById('ev-timer-icon').className = "fa-solid fa-radiation";
+                    document.getElementById('ev-timer-icon').style.color = color;
+                }
+                else {
+                    color = '#8B0000';
+                    label = 'Severe';
+                    riskText = 'Hazardous';
+                    lungTitle = "Emergency Conditions";
+                    lungDesc = "Healthy people may experience serious health effects. Immediate action required.";
+                    timerText = "00h 05m";
+                    document.getElementById('ev-timer-ring').classList.remove('paused');
+                    document.getElementById('ev-timer-icon').className = "fa-solid fa-skull-crossbones";
+                    document.getElementById('ev-timer-icon').style.color = color;
+                }
 
                 // Apply Colors & Text to Elements
                 document.getElementById('dv-bqi-label').innerText = label;
@@ -645,7 +693,6 @@ else {
                 document.getElementById('ev-status-title').innerText = lungTitle;
                 document.getElementById('ev-status-title').style.color = color;
                 document.getElementById('ev-status-desc').innerText = lungDesc;
-                const impactBtn = document.querySelector(".impact-btn");
                 
                 document.getElementById('dv-risk-icon').style.color = color;
                 document.getElementById('dv-risk-text').innerText = riskText;
@@ -656,13 +703,58 @@ else {
                 // Safely update the spinning ring color using a CSS variable
                 document.getElementById('ev-timer-ring').style.setProperty('--timer-color', color);
 
-                // Update Recommendations List
-                document.getElementById('ev-rec-list').innerHTML = recHtml;
+                // --- Build real Recommendations based on which reading is worst ---
+                let recItems = [];
+                if (bqi <= 50) {
+                    recItems.push('<li class="rec-item"><span class="tag tag-prev">MAINTAIN</span> Air quality is excellent. No action needed right now.</li>');
+                } else {
+                    if (isNum(data.mq135) && data.mq135 > 1000) {
+                        recItems.push('<li class="rec-item"><span class="tag tag-act">VENTILATE</span> Gas levels are elevated. Open a window or run an air purifier.</li>');
+                    }
+                    if (isNum(data.dust) && data.dust > 35.4) {
+                        recItems.push('<li class="rec-item"><span class="tag tag-act">FILTER</span> Particulate levels are high. Consider an air filtration system.</li>');
+                    }
+                    if (isNum(data.spo2) && data.spo2 >= 0 && data.spo2 < 95) {
+                        recItems.push('<li class="rec-item"><span class="tag tag-emg">MONITOR</span> Blood oxygen reading is low. Consider stepping into fresh air.</li>');
+                    }
+                    if (isNum(data.temperature) && (data.temperature < 18 || data.temperature > 30)) {
+                        recItems.push('<li class="rec-item"><span class="tag tag-prev">COMFORT</span> Temperature is outside the comfortable range.</li>');
+                    }
+                    if (bqi > 300) {
+                        recItems.push('<li class="rec-item"><span class="tag tag-emg">LIMIT EXPOSURE</span> Reduce time spent in this environment until conditions improve.</li>');
+                    }
+                    if (recItems.length === 0) {
+                        recItems.push('<li class="rec-item"><span class="tag tag-prev">WATCH</span> Conditions are acceptable but trending. Keep monitoring.</li>');
+                    }
+                }
+                document.getElementById('ev-rec-list').innerHTML = recItems.join('');
                 
                 // Update the text at the very bottom of the page
                 document.getElementById('dynamic-guide-text').innerHTML = `Your current BQI is <span style="color:${color}; font-weight:bold;">${bqi}</span>. Keep monitoring for better respiratory health.`;
 
-            } catch (error) { console.error("Error fetching live data:", error); }
+                // --- Recent Alerts: timestamped in IST, newest first ---
+                const alertTime = formatIST(new Date(), { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+                const alertList = document.getElementById('alert-list');
+                const firstRun = alertList.dataset.seeded !== 'true';
+                if (firstRun) {
+                    alertList.innerHTML = '';
+                    alertList.dataset.seeded = 'true';
+                }
+                const alertIcon = bqi > 200 ? 'fa-triangle-exclamation' : 'fa-check-circle';
+                const alertColor = bqi > 200 ? 'var(--color-poor)' : 'var(--color-excellent)';
+                const entry = document.createElement('div');
+                entry.className = 'alert-item';
+                entry.innerHTML = `<i class="fa-solid ${alertIcon}" style="color:${alertColor}; margin-top:3px;"></i>
+                    <div>BQI reading: ${bqi} (${label})<span class="alert-time">${alertTime} IST</span></div>`;
+                alertList.prepend(entry);
+                while (alertList.children.length > 5) {
+                    alertList.removeChild(alertList.lastChild);
+                }
+
+            } catch (error) {
+                console.error("Error fetching live data:", error);
+                setOfflineState();
+            }
         }
 
         // --- Start ---
