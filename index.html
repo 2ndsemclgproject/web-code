@@ -80,7 +80,7 @@
         .interactive-row {
             display: flex;
             gap: 1.5rem;
-            height: 240px; 
+            height: 290px; 
             width: 100%;
         }
 
@@ -135,17 +135,22 @@
         .hover-block:hover .expanded-view { opacity: 1; pointer-events: auto; position: relative; top: 0; padding: 0;}
 
         /* Generic scrollable wrapper used inside expanded views that can
-           contain a CTA button or other "always visible" trailing element */
+           contain a CTA button or other "always visible" trailing element.
+           With taller cards (290px) this should rarely need to scroll at
+           all - it's a safety net for unusually long messages, not the
+           normal reading experience, so the scrollbar stays understated. */
         .expanded-scroll {
             overflow-y: auto;
             overflow-x: hidden;
             flex: 1 1 auto;
             min-height: 0;
-            padding-right: 4px;
+            padding-right: 10px;
+            margin-right: -10px;
         }
-        .expanded-scroll::-webkit-scrollbar { width: 6px; }
+        .expanded-scroll::-webkit-scrollbar { width: 4px; }
         .expanded-scroll::-webkit-scrollbar-track { background: transparent; }
-        .expanded-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+        .expanded-scroll::-webkit-scrollbar-thumb { background: transparent; border-radius: 2px; transition: background 0.2s; }
+        .expanded-scroll:hover::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); }
 
         /* default view typography */
         .dv-val { font-size: 3rem; font-weight: 800; line-height: 1; margin: 10px 0;}
@@ -162,14 +167,15 @@
         .lung-container{
             display:flex;
             align-items:flex-start;
-            gap:20px;
+            gap:18px;
             width:100%;
         }
 
         .lung-icon{
-            font-size:4.5rem;
+            font-size:2.4rem;
             color:#f97316;
             flex-shrink:0;
+            margin-top: 4px;
         }
 
         .lung-text{
@@ -180,21 +186,23 @@
 
         .lung-text h3{
             margin:0 0 8px 0;
-            font-size:1.35rem;
+            font-size:1.3rem;
             font-weight:700;
             color:#f87171;
+            line-height: 1.3;
         }
 
         .lung-text p{
-            margin:0 0 1px 0;
-            line-height:1.5;
+            margin:0 0 10px 0;
+            line-height:1.6;
+            font-size: 0.95rem;
         }
 
         .impact-preview{
             margin-bottom:1px;
             color:var(--text-muted);
             font-size:0.82rem;
-            line-height:1.5;
+            line-height:1.6;
         }
 
         /* --- EXPANDED VIEW 3: TOXICITY TIMER --- */
