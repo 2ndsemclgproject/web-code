@@ -72,7 +72,11 @@
         .connection-badge { color: var(--color-excellent); font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 8px; transition: color 0.3s;}
         .connection-badge.offline { color: var(--color-offline); }
 
-        /* --- INTERACTIVE ACCORDION ROW --- */
+        /* --- INTERACTIVE ACCORDION ROW ---
+           Desktop: 4 panels side by side, one expands on hover.
+           Tablet/mobile: hover doesn't really exist as an interaction, so
+           below 900px these stack into a vertical list where every card
+           is always in its "expanded" state - no hover needed to read it. */
         .interactive-row {
             display: flex;
             gap: 1.5rem;
@@ -109,8 +113,39 @@
         .default-view { transition: opacity 0.3s; opacity: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center;}
         .hover-block:hover .default-view { opacity: 0; position: absolute; pointer-events: none; }
         
-        .expanded-view { opacity: 0; position: absolute; transition: opacity 0.3s 0.2s; pointer-events: none; width: 100%; height: calc(100% - 50px); top: 50px; left: 0; padding: 0 1.5rem; display: flex; align-items: center; justify-content: center;}
+        /* Expanded view is a flex column that can scroll internally:
+           the content area (everything above the button) scrolls if it
+           overflows, while the CTA button stays pinned and always visible
+           at the bottom of the card. This is what keeps long messages
+           (like the offline description) from ever clipping the button. */
+        .expanded-view {
+            opacity: 0;
+            position: absolute;
+            transition: opacity 0.3s 0.2s;
+            pointer-events: none;
+            width: 100%;
+            height: calc(100% - 50px);
+            top: 50px;
+            left: 0;
+            padding: 0 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
         .hover-block:hover .expanded-view { opacity: 1; pointer-events: auto; position: relative; top: 0; padding: 0;}
+
+        /* Generic scrollable wrapper used inside expanded views that can
+           contain a CTA button or other "always visible" trailing element */
+        .expanded-scroll {
+            overflow-y: auto;
+            overflow-x: hidden;
+            flex: 1 1 auto;
+            min-height: 0;
+            padding-right: 4px;
+        }
+        .expanded-scroll::-webkit-scrollbar { width: 6px; }
+        .expanded-scroll::-webkit-scrollbar-track { background: transparent; }
+        .expanded-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
 
         /* default view typography */
         .dv-val { font-size: 3rem; font-weight: 800; line-height: 1; margin: 10px 0;}
@@ -126,10 +161,9 @@
         /* --- EXPANDED VIEW 2: MEDICAL LUNGS --- */
         .lung-container{
             display:flex;
-            align-items:center;
+            align-items:flex-start;
             gap:20px;
             width:100%;
-            margin-top:35px;
         }
 
         .lung-icon{
@@ -141,7 +175,7 @@
         .lung-text{
             flex:1;
             text-align:left;
-            margin-top:0px;
+            min-width:0;
         }
 
         .lung-text h3{
@@ -212,18 +246,13 @@
         /* Live Readings Redirect Link */
         .live-redirect { display: block; text-align: center; margin-top: 1.5rem; font-size: 0.8rem; color: var(--text-muted); text-decoration: none; transition: color 0.3s; }
         .live-redirect:hover { color: var(--color-o2); }
-        .impact-preview{
-            margin-top:12px;
-            color:var(--text-muted);
-            font-size:0.85rem;
-            line-height:1.6;
-        }
 
         .impact-btn{
             display:inline-flex;
             align-items:center;
+            justify-content: center;
             gap:10px;
-            margin-top:15px;
+            margin-top:14px;
             padding:10px 16px;
             border-radius:12px;
             text-decoration:none;
@@ -233,11 +262,86 @@
             font-size:0.85rem;
             font-weight:600;
             transition:0.3s ease;
+            flex-shrink: 0;
         }
 
         .impact-btn:hover{
             transform:translateY(-2px);
             background:rgba(14,165,233,0.25);
+        }
+
+        /* ============================================================
+           RESPONSIVE BREAKPOINTS
+           ============================================================
+           Tablet (<= 1024px): sidebar narrows, middle/bottom rows stack
+           to a single column so charts and panels keep readable width.
+
+           Mobile/Tablet (<= 900px): the interactive accordion's hover
+           interaction doesn't make sense on a touch device (no mouse to
+           hover with), so it stops behaving like an accordion entirely.
+           Below this width every card shows its expanded content all
+           the time, stacked vertically - no hover, nothing hidden.
+           The sidebar collapses to a top icon bar to save vertical space.
+           ============================================================ */
+
+        @media (max-width: 1024px) {
+            .middle-row { grid-template-columns: 1fr; }
+            .bottom-row { grid-template-columns: 1fr; }
+            .sensors-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 900px) {
+            body { flex-direction: column; }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                flex-direction: row;
+                align-items: center;
+                padding: 1rem 1.5rem;
+                gap: 1rem;
+                position: sticky;
+                top: 0;
+                z-index: 50;
+            }
+            .logo { margin-bottom: 0; font-size: 1.2rem; }
+            .nav-menu { flex-direction: row; gap: 0.25rem; overflow-x: auto; }
+            .nav-item { padding: 0.6rem 0.8rem; white-space: nowrap; font-size: 0.85rem; }
+
+            .main-content { padding: 1.25rem; height: auto; overflow-y: visible; }
+            .header { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+
+            /* Accordion becomes a static stacked list - every card is
+               always "expanded", nothing relies on :hover anymore */
+            .interactive-row {
+                flex-direction: column;
+                height: auto;
+            }
+            .hover-block {
+                flex: none;
+                height: auto;
+                min-height: 180px;
+            }
+            .hover-block:hover { flex: none; }
+            .default-view { display: none; }
+            .expanded-view {
+                opacity: 1 !important;
+                position: relative !important;
+                pointer-events: auto !important;
+                top: 0 !important;
+                height: auto !important;
+                padding: 0 !important;
+            }
+            .expanded-scroll { max-height: 220px; }
+
+            .sensors-grid { grid-template-columns: 1fr 1fr; }
+            .level-icons { display: none; }
+        }
+
+        @media (max-width: 560px) {
+            .sensors-grid { grid-template-columns: 1fr; }
+            .bqi-value, .dv-val { font-size: 2.5rem; }
+            .nav-item { font-size: 0.75rem; padding: 0.5rem 0.6rem; gap: 6px; }
         }
     </style>
 </head>
@@ -302,22 +406,24 @@
                 </div>
 
                 <div class="expanded-view">
-                    <div class="lung-container">
-                        <i class="fa-solid fa-lungs lung-icon" id="ev-lung-icon"></i>
-                        <div class="lung-text">
-                            <h3 id="ev-status-title">Analyzing...</h3>
-                            <p id="ev-status-desc">
-                                Reading environmental telemetry...
-                            </p>
-                            <div class="impact-preview">
-                                Click below for a complete medical and environmental impact analysis based on the detected air quality conditions.
+                    <div class="expanded-scroll">
+                        <div class="lung-container">
+                            <i class="fa-solid fa-lungs lung-icon" id="ev-lung-icon"></i>
+                            <div class="lung-text">
+                                <h3 id="ev-status-title">Analyzing...</h3>
+                                <p id="ev-status-desc">
+                                    Reading environmental telemetry...
+                                </p>
+                                <div class="impact-preview">
+                                    Click below for a complete medical and environmental impact analysis based on the detected air quality conditions.
+                                </div>
                             </div>
-                            <a href="health-impact" class="impact-btn">
-                                <i class="fa-solid fa-book-medical"></i>
-                                Detailed Health Impact Analysis →
-                            </a>
                         </div>
                     </div>
+                    <a href="health-impact" class="impact-btn">
+                        <i class="fa-solid fa-book-medical"></i>
+                        Detailed Health Impact Analysis →
+                    </a>
                 </div>
             </div>
 
@@ -353,9 +459,11 @@
                 </div>
 
                 <div class="expanded-view">
-                    <ul class="rec-list" id="ev-rec-list">
-                        <li class="rec-item"><span class="tag tag-sys">SYSTEM</span> Waiting for sensor packet...</li>
-                    </ul>
+                    <div class="expanded-scroll">
+                        <ul class="rec-list" id="ev-rec-list">
+                            <li class="rec-item"><span class="tag tag-sys">SYSTEM</span> Waiting for sensor packet...</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
 
