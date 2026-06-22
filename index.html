@@ -604,6 +604,12 @@
         const LIVE_API_URL = 'https://api.breathiq.qzz.io/api/live-metrics';
         const HISTORY_API_URL = 'https://api.breathiq.qzz.io/api/history';
 
+        // The ESP32 posts every 5s, so anything older than this means the
+        // device itself has gone quiet (lost power, lost wifi, crashed,
+        // etc.) - the backend just keeps serving its last known reading
+        // forever with no expiry, so this check has to happen client-side.
+        const STALE_THRESHOLD_MS = 45000; // 45s = ~9 missed posting cycles
+
         // --- 2. Fetch History (Runs once) ---
         async function fetchHistoryData() {
             try {
@@ -679,6 +685,67 @@
             document.getElementById('status-sensors').style.color = 'var(--color-offline)';
         }
 
+        // --- Helper: server answered fine and has a real packet, but that
+        // packet is too old - the ESP32 itself has gone dark (power loss,
+        // wifi drop, crash, etc). Distinct from setOfflineState() (which
+        // covers "no packet has EVER arrived") because here we actually
+        // know when it was last seen and can say so. ---
+        function setStaleState(lastTimestamp) {
+            const badge = document.getElementById('connection-badge');
+            badge.classList.add('offline');
+            document.getElementById('connection-text').innerText = 'Device Offline';
+
+            ['ui-co2', 'ui-o2', 'ui-voc', 'ui-temp', 'ui-hum'].forEach(id => {
+                const el = document.getElementById(id);
+                el.innerText = '--';
+                el.parentElement.classList.add('offline-text');
+            });
+
+            document.getElementById('dv-bqi-val').innerText = '--';
+            document.getElementById('dv-bqi-val').style.color = 'var(--color-offline)';
+            document.getElementById('dv-bqi-label').innerText = 'NO DATA';
+            document.getElementById('dv-bqi-label').style.color = 'var(--color-offline)';
+
+            document.getElementById('ev-bqi-val').innerText = '--';
+            document.getElementById('ev-bqi-label').innerText = 'DEVICE OFFLINE';
+            document.getElementById('ev-bqi-label').style.color = 'var(--color-offline)';
+            document.getElementById('ui-gauge-fill').style.borderColor = 'var(--color-offline)';
+
+            document.getElementById('dv-status-icon').style.color = 'var(--color-offline)';
+            document.getElementById('dv-status-text').innerText = 'Offline';
+            document.getElementById('dv-status-text').style.color = 'var(--color-offline)';
+            document.getElementById('ev-lung-icon').style.color = 'var(--color-offline)';
+            document.getElementById('ev-status-title').innerText = 'Device Offline';
+            document.getElementById('ev-status-title').style.color = 'var(--color-offline)';
+            document.getElementById('ev-status-desc').innerText = 'The server is reachable, but the ESP32 has stopped sending data. Showing the last reading received before it went quiet.';
+
+            document.getElementById('dv-risk-icon').style.color = 'var(--color-offline)';
+            document.getElementById('dv-risk-text').innerText = 'Unknown';
+            document.getElementById('dv-risk-text').style.color = 'var(--color-offline)';
+            document.getElementById('ev-timer-val').innerText = '--';
+            document.getElementById('ev-timer-val').style.color = 'var(--color-offline)';
+            document.getElementById('ev-timer-ring').classList.add('paused');
+            document.getElementById('ev-timer-ring').style.setProperty('--timer-color', 'var(--color-offline)');
+            document.getElementById('ev-timer-icon').className = 'fa-solid fa-plug-circle-xmark';
+            document.getElementById('ev-timer-icon').style.color = 'var(--color-offline)';
+
+            document.getElementById('ev-rec-list').innerHTML =
+                '<li class="rec-item"><span class="tag tag-sys">SYSTEM</span> Device offline &mdash; no live recommendations available.</li>';
+
+            document.getElementById('dynamic-guide-text').innerHTML =
+                'No live data right now. The dashboard will update as soon as the device reconnects.';
+
+            // Server is up, so we DO know exactly when the device was last
+            // heard from - show that instead of '--' like the never-connected case.
+            document.getElementById('status-esp32').innerText = 'Offline';
+            document.getElementById('status-esp32').style.color = 'var(--color-offline)';
+            const lastSeenText = formatIST(lastTimestamp, { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+            document.getElementById('status-last-seen').innerText = lastSeenText + ' IST';
+            document.getElementById('status-last-seen').style.color = 'var(--color-offline)';
+            document.getElementById('status-sensors').innerText = '0 / 5';
+            document.getElementById('status-sensors').style.color = 'var(--color-offline)';
+        }
+
         function setOnlineState() {
             const badge = document.getElementById('connection-badge');
             badge.classList.remove('offline');
@@ -689,19 +756,63 @@
             });
         }
 
+        // --- Helper: server is cold-starting (Render free tier spins down
+        // after inactivity, then takes 20-50s+ to wake on the next request).
+        // This is distinct from setOfflineState(): the device may well be
+        // fine, it's the *backend* that hasn't finished booting yet, so we
+        // say so explicitly instead of implying the ESP32 itself is down. ---
+        let consecutiveFailures = 0;
+        function setWakingState() {
+            const badge = document.getElementById('connection-badge');
+            badge.classList.add('offline');
+            document.getElementById('connection-text').innerText = 'Waking up server...';
+
+            document.getElementById('dv-bqi-label').innerText = 'SERVER WAKING UP';
+            document.getElementById('dv-status-text').innerText = 'Reconnecting';
+            document.getElementById('dv-risk-text').innerText = 'Reconnecting';
+
+            document.getElementById('ev-status-title').innerText = 'Reconnecting to Server';
+            document.getElementById('ev-status-title').style.color = 'var(--color-offline)';
+            document.getElementById('ev-status-desc').innerText = 'The backend was idle and is starting back up. This can take up to a minute on the first request - sensor data will resume automatically once it is back.';
+
+            document.getElementById('status-esp32').innerText = 'Server waking up';
+            document.getElementById('status-esp32').style.color = 'var(--color-moderate)';
+        }
+
         // --- 3. Medical UI Logic Engine (Runs every 5 secs) ---
         async function fetchLiveSensorData() {
             try {
-                const response = await fetch(LIVE_API_URL);
+                // Render's free tier can take 20-50s+ to cold-start after being
+                // idle. AbortController gives that a generous ceiling (15s) so
+                // a sleeping server shows "waking up" promptly on this poll
+                // cycle, and we'll just succeed on the next 5s retry once it's up.
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 15000);
+                const response = await fetch(LIVE_API_URL, { signal: controller.signal });
+                clearTimeout(timeoutId);
                 const data = await response.json();
+                consecutiveFailures = 0;
 
                 // The backend starts with latestData = {} until the first
                 // sensor packet ever arrives, and an ESP32 that's powered
                 // off simply stops POSTing - the object just goes stale.
                 // bqi is the one field every real packet always has, so its
-                // absence is the reliable "nothing is connected" signal.
+                // absence is the reliable "nothing has EVER connected" signal.
                 if (!isNum(data.bqi)) {
                     setOfflineState();
+                    return;
+                }
+
+                // bqi being present only tells us a packet arrived at SOME
+                // point - the backend keeps serving that same object forever
+                // with no expiry. So if the device died, this object never
+                // goes away, it just gets older. Checking the age of
+                // data.timestamp is the only way to tell "device is fine,
+                // here's its live reading" apart from "device died a while
+                // ago, this is just the last thing it ever sent."
+                const packetAge = data.timestamp ? (Date.now() - new Date(data.timestamp).getTime()) : Infinity;
+                if (packetAge > STALE_THRESHOLD_MS) {
+                    setStaleState(new Date(data.timestamp));
                     return;
                 }
 
@@ -865,7 +976,12 @@
                 document.getElementById('dynamic-guide-text').innerHTML = `Your current BQI is <span style="color:${color}; font-weight:bold;">${bqi}</span>. Keep monitoring for better respiratory health.`;
 
                 // --- Device Status Panel ---
-                const lastSeen = formatIST(new Date(), { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+                // Use the backend's own timestamp (when the ESP32 actually posted
+                // this packet) instead of "now" - that way if the device goes
+                // quiet but the server stays up, this correctly shows how long
+                // ago the last real packet arrived instead of always saying "now".
+                const deviceTimestamp = data.timestamp ? new Date(data.timestamp) : new Date();
+                const lastSeen = formatIST(deviceTimestamp, { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
                 document.getElementById('status-esp32').innerText = 'Online';
                 document.getElementById('status-esp32').style.color = 'var(--color-excellent)';
                 document.getElementById('status-last-seen').innerText = lastSeen + ' IST';
@@ -879,7 +995,14 @@
 
             } catch (error) {
                 console.error("Error fetching live data:", error);
-                setOfflineState();
+                // A thrown error here means the request itself failed (timed
+                // out, connection refused, DNS, etc.) - the server didn't even
+                // respond. That's the cold-start signature, so say "waking up"
+                // rather than "device offline" (data.bqi missing further up,
+                // which is a *successful* response with an empty body, is the
+                // real "device offline" case and is handled separately above).
+                consecutiveFailures++;
+                setWakingState();
             }
         }
 
