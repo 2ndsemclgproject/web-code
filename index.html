@@ -244,13 +244,6 @@
         .level-labels div { flex: 1; display: flex; flex-direction: column; }
         .level-labels span { font-weight: 600; color: var(--text-main); margin-bottom: 2px;}
 
-        /* Recent Alerts */
-        .alert-list { display: flex; flex-direction: column; gap: 12px; margin-top: 10px;}
-        .alert-item { display: flex; gap: 10px; font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;}
-        .alert-item .alert-time { display: block; font-size: 0.75rem; color: rgba(148, 163, 184, 0.6); margin-top: 2px; }
-        .view-all-link { display: block; text-align: right; color: var(--color-o2); text-decoration: none; font-size: 0.85rem; font-weight: 600; margin-top: 15px;}
-        .view-all-link:hover { text-decoration: underline; }
-
         /* Live Readings Redirect Link */
         .live-redirect { display: block; text-align: center; margin-top: 1.5rem; font-size: 0.8rem; color: var(--text-muted); text-decoration: none; transition: color 0.3s; }
         .live-redirect:hover { color: var(--color-o2); }
@@ -543,18 +536,35 @@
             </div>
 
             <div class="glass-panel-static">
-                <div class="block-title">Recent Alerts</div>
-                <div class="alert-list" id="alert-list">
-                    <div class="alert-item">
-                        <i class="fa-solid fa-bell" style="color: var(--color-moderate); margin-top: 3px;"></i>
-                        <div>Initializing medical sensor network...</div>
+                <div class="block-title"><i class="fa-solid fa-satellite-dish"></i> Device Status</div>
+                <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 10px;">
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); border-radius: 10px; padding: 10px 14px;">
+                        <span style="color: var(--text-muted); font-size: 0.85rem;">ESP32 Status</span>
+                        <span id="status-esp32" style="font-size: 0.85rem; font-weight: 600; color: var(--color-offline);">--</span>
                     </div>
-                    <div class="alert-item">
-                        <i class="fa-solid fa-check-circle" style="color: var(--color-excellent); margin-top: 3px;"></i>
-                        <div>ESP32 hardware uplink established.</div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); border-radius: 10px; padding: 10px 14px;">
+                        <span style="color: var(--text-muted); font-size: 0.85rem;">Last Data Received</span>
+                        <span id="status-last-seen" style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">--</span>
                     </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); border-radius: 10px; padding: 10px 14px;">
+                        <span style="color: var(--text-muted); font-size: 0.85rem;">Update Interval</span>
+                        <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-main);">Every 5s</span>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); border-radius: 10px; padding: 10px 14px;">
+                        <span style="color: var(--text-muted); font-size: 0.85rem;">Sensors Active</span>
+                        <span id="status-sensors" style="font-size: 0.85rem; font-weight: 600; color: var(--color-offline);">--</span>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); border-radius: 10px; padding: 10px 14px;">
+                        <span style="color: var(--text-muted); font-size: 0.85rem;">Cloud Database</span>
+                        <span style="font-size: 0.85rem; font-weight: 600; color: var(--color-excellent);"><i class="fa-solid fa-circle" style="font-size: 0.5rem; margin-right: 5px;"></i>MongoDB Atlas</span>
+                    </div>
+
                 </div>
-                <a href="history" class="view-all-link">View All Logs</a>
             </div>
 
         </div>
@@ -661,6 +671,12 @@
 
             document.getElementById('dynamic-guide-text').innerHTML =
                 'No live data right now. The dashboard will update as soon as the device reconnects.';
+
+            document.getElementById('status-esp32').innerText = 'Offline';
+            document.getElementById('status-esp32').style.color = 'var(--color-offline)';
+            document.getElementById('status-last-seen').innerText = '--';
+            document.getElementById('status-sensors').innerText = '0 / 5';
+            document.getElementById('status-sensors').style.color = 'var(--color-offline)';
         }
 
         function setOnlineState() {
@@ -848,24 +864,18 @@
                 // Update the text at the very bottom of the page
                 document.getElementById('dynamic-guide-text').innerHTML = `Your current BQI is <span style="color:${color}; font-weight:bold;">${bqi}</span>. Keep monitoring for better respiratory health.`;
 
-                // --- Recent Alerts: timestamped in IST, newest first ---
-                const alertTime = formatIST(new Date(), { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
-                const alertList = document.getElementById('alert-list');
-                const firstRun = alertList.dataset.seeded !== 'true';
-                if (firstRun) {
-                    alertList.innerHTML = '';
-                    alertList.dataset.seeded = 'true';
-                }
-                const alertIcon = bqi > 200 ? 'fa-triangle-exclamation' : 'fa-check-circle';
-                const alertColor = bqi > 200 ? 'var(--color-poor)' : 'var(--color-excellent)';
-                const entry = document.createElement('div');
-                entry.className = 'alert-item';
-                entry.innerHTML = `<i class="fa-solid ${alertIcon}" style="color:${alertColor}; margin-top:3px;"></i>
-                    <div>BQI reading: ${bqi} (${label})<span class="alert-time">${alertTime} IST</span></div>`;
-                alertList.prepend(entry);
-                while (alertList.children.length > 5) {
-                    alertList.removeChild(alertList.lastChild);
-                }
+                // --- Device Status Panel ---
+                const lastSeen = formatIST(new Date(), { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+                document.getElementById('status-esp32').innerText = 'Online';
+                document.getElementById('status-esp32').style.color = 'var(--color-excellent)';
+                document.getElementById('status-last-seen').innerText = lastSeen + ' IST';
+                document.getElementById('status-last-seen').style.color = 'var(--text-main)';
+
+                // Count how many sensors returned valid data
+                const sensorIds = [data.mq135, data.spo2, data.dust, data.temperature, data.humidity];
+                const activeSensors = sensorIds.filter(v => isNum(v)).length;
+                document.getElementById('status-sensors').innerText = `${activeSensors} / 5`;
+                document.getElementById('status-sensors').style.color = activeSensors === 5 ? 'var(--color-excellent)' : 'var(--color-moderate)';
 
             } catch (error) {
                 console.error("Error fetching live data:", error);
